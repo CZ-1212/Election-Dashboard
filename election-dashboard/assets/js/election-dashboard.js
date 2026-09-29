@@ -130,10 +130,12 @@
         current = slug;
         renderBallot(slug);
       }
+      paths.forEach(function (p) { p.classList.toggle('is-hover', p.getAttribute('data-county') === slug); });
       root.classList.add('is-active');
     }
     function hide() {
       current = null;
+      paths.forEach(function (p) { p.classList.remove('is-hover'); });
       root.classList.remove('is-active');
       if (status) { status.textContent = 'Ballot closed.'; }
     }
