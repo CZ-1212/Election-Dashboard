@@ -1,0 +1,277 @@
+/* Election Dashboard — county map + ballot panel
+   ------------------------------------------------------------------
+   All rules are scoped under .ed-dashboard so the widget can live inside
+   any WordPress theme without leaking styles either way.
+*/
+.ed-dashboard {
+  --ed-navy: #1e2a5a;
+  --ed-blue: #2a58b8;
+  --ed-blue-dark: #1f3f9a;
+  --ed-red: #e04545;
+  --ed-paper: #f4e6e1;
+  --ed-paper-dark: #d9cfd4;
+  --ed-hover: #f6c9bc;
+  --ed-active: #c7d4f2;
+  --ed-panel-bg: #ffffff;
+  --ed-panel-head: #e9eef8;
+  --ed-panel-border: #3a5aa8;
+  --ed-text: #1b1f2a;
+  --ed-muted: #5b6373;
+  --ed-ballot-width: 440px;
+  --ed-map-width: 340px;
+  --ed-ease: cubic-bezier(.22,.8,.3,1);
+  --ed-speed: .55s;
+
+  font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  color: var(--ed-text);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+.ed-dashboard *, .ed-dashboard *::before, .ed-dashboard *::after { box-sizing: inherit; }
+
+/* ---------- Stage layout ---------- */
+.ed-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-height: 560px;
+  position: relative;
+}
+.ed-map-wrap {
+  flex: 0 0 auto;
+  width: var(--ed-map-width);
+  position: relative;
+  transition: transform var(--ed-speed) var(--ed-ease);
+  z-index: 2;
+}
+.ed-map-svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+/* Engraved / hand-drawn look for the counties */
+.ed-counties { filter: drop-shadow(3px 4px 3px rgba(30, 42, 90, .35)); }
+.ed-county {
+  fill: url(#ed-paper);
+  stroke: var(--ed-navy);
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+  cursor: pointer;
+  outline: none;
+  transition: fill .2s ease, stroke-width .2s ease, transform .25s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.ed-county:hover, .ed-county:focus-visible, .ed-county.is-hover {
+  fill: url(#ed-paper-hover);
+  stroke-width: 3;
+  transform: translate(-2px, -2px);
+}
+.ed-county.is-pinned {
+  fill: url(#ed-paper-active);
+  stroke: var(--ed-blue-dark);
+  stroke-width: 3.2;
+}
+.ed-county:focus-visible { stroke: var(--ed-red); }
+
+.ed-map-tip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--ed-navy);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .02em;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  transform: translate(-50%, -140%);
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 5;
+}
+.ed-map-tip.is-visible { opacity: 1; }
+
+/* ---------- Side column: hint (idle) or emblem + arrow (active) ---------- */
+/* The side column is narrow; the hint / emblem overhang the empty top-right of the map
+   so the map and the logo sit close together while nothing is selected. */
+.ed-side {
+  flex: 0 0 auto;
+  width: 110px;
+  align-self: flex-start;
+  margin-top: 40px;
+  position: relative;
+  min-height: 150px;
+  z-index: 3;
+}
+.ed-hint-touch { display: none; }
+@media (hover: none) { .ed-hint-mouse { display: none; } .ed-hint-touch { display: inline; } }
+.ed-hint {
+  position: absolute; inset: 0 auto auto -56px;
+  width: 150px;
+  background: #fff;
+  border: 2px solid var(--ed-blue);
+  box-shadow: 2px 2px 0 var(--ed-navy);
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--ed-navy);
+  transition: opacity .3s, transform .3s;
+}
+.ed-emblem-float {
+  position: absolute; inset: 0 auto auto -48px;
+  width: 150px;
+  display: flex; align-items: center; gap: 4px;
+  opacity: 0;
+  transform: translateX(-16px) scale(.85);
+  transition: opacity .35s var(--ed-ease), transform .45s var(--ed-ease);
+  pointer-events: none;
+}
+.ed-emblem-float svg { width: 44px; height: 44px; flex: 0 0 44px; }
+.ed-emblem-float img {
+  width: 96px; height: 96px; border-radius: 50%; object-fit: contain;
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(30,42,90,.35);
+}
+
+/* ---------- Ballot panel ---------- */
+.ed-ballot {
+  flex: 0 1 auto;
+  width: 0;
+  padding: 16px 0 24px;
+  max-width: var(--ed-ballot-width);
+  opacity: 0;
+  overflow: hidden;
+  transform: translateX(-24px);
+  transition: width var(--ed-speed) var(--ed-ease),
+              opacity .35s ease .1s,
+              transform var(--ed-speed) var(--ed-ease),
+              margin var(--ed-speed) var(--ed-ease);
+  will-change: width;
+}
+.ed-ballot-inner {
+  width: var(--ed-ballot-width);
+  max-width: 100%;
+  background: var(--ed-panel-bg);
+  border: 2px solid var(--ed-panel-border);
+  box-shadow: 0 14px 24px -8px rgba(30,42,90,.35);
+  display: flex; flex-direction: column;
+  max-height: min(640px, 80vh);
+}
+.ed-ballot-head {
+  background: var(--ed-panel-head);
+  border-bottom: 1px solid #c9d3ee;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 12px;
+  flex: 0 0 auto;
+}
+.ed-ballot-head img { width: 44px; height: 44px; border-radius: 50%; object-fit: contain; background: #fff; }
+.ed-ballot-title { font-size: 18px; font-weight: 800; color: var(--ed-text); margin: 0; flex: 1 1 auto; }
+.ed-close {
+  appearance: none; border: 0; background: transparent;
+  width: 32px; height: 32px; border-radius: 50%;
+  font-size: 22px; line-height: 1; color: var(--ed-muted); cursor: pointer;
+  display: none;
+}
+.ed-close:hover { background: #fff; color: var(--ed-red); }
+.ed-dashboard.is-pinned .ed-close { display: inline-block; }
+
+.ed-search {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-bottom: 1px solid #e3e8f2;
+}
+.ed-search input {
+  width: 100%; border: 1px solid #c9d0de; border-radius: 4px;
+  padding: 7px 10px; font: inherit; font-size: 13px; color: var(--ed-text);
+}
+.ed-search input:focus { outline: 2px solid var(--ed-blue); outline-offset: 0; }
+
+.ed-ballot-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 10px 14px 18px;
+  scrollbar-width: thin;
+  scrollbar-color: #9fb0d8 #eef1f8;
+}
+.ed-ballot-body::-webkit-scrollbar { width: 8px; }
+.ed-ballot-body::-webkit-scrollbar-thumb { background: #9fb0d8; border-radius: 8px; }
+
+/* Ballot content conventions (see README) */
+.ed-ballot-body .ed-group { margin: 0 0 16px; }
+.ed-ballot-body .ed-group > h3 {
+  background: var(--ed-blue-dark); color: #fff;
+  font-size: 13px; font-weight: 700; letter-spacing: .01em;
+  margin: 0 0 8px; padding: 6px 10px;
+}
+.ed-ballot-body .ed-contest { margin: 0 0 14px; padding: 0 4px; }
+.ed-ballot-body .ed-contest > h4 { margin: 0 0 4px; font-size: 14px; font-weight: 800; color: var(--ed-blue-dark); }
+.ed-ballot-body .ed-contest p { margin: 0 0 6px; font-size: 12.5px; line-height: 1.5; color: var(--ed-muted); }
+.ed-ballot-body .ed-contest ul { margin: 4px 0 6px; padding-left: 18px; font-size: 12.5px; color: var(--ed-text); }
+.ed-ballot-body .ed-contest li { margin: 2px 0; }
+.ed-ballot-body .ed-contest .ed-result { font-size: 12px; font-weight: 700; color: var(--ed-navy); }
+.ed-ballot-body .is-filtered { display: none; }
+.ed-ballot-body .ed-empty, .ed-ballot-body .ed-loading, .ed-ballot-body .ed-error {
+  font-size: 13px; color: var(--ed-muted); padding: 24px 8px; text-align: center;
+}
+.ed-ballot-body .ed-error { color: var(--ed-red); }
+.ed-ballot-body iframe.ed-frame { width: 100%; height: 520px; border: 0; display: block; }
+.ed-ballot-body img { max-width: 100%; height: auto; }
+
+/* ---------- Brand logo ---------- */
+.ed-brand {
+  flex: 0 0 auto;
+  width: 250px;
+  margin-left: 0;
+  transition: transform var(--ed-speed) var(--ed-ease), margin var(--ed-speed) var(--ed-ease);
+}
+.ed-brand img, .ed-brand svg { display: block; width: 100%; height: auto; }
+
+/* ---------- Active state: map + logo part, ballot slides in ---------- */
+.ed-dashboard.is-active .ed-ballot {
+  width: var(--ed-ballot-width);
+  opacity: 1;
+  transform: translateX(0);
+  margin: 0 8px;
+}
+.ed-dashboard.is-active .ed-hint { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+.ed-dashboard.is-active .ed-emblem-float { opacity: 1; transform: translateX(0) scale(1); }
+.ed-dashboard.is-active .ed-brand { margin-left: 32px; }
+
+/* Screen-reader status line */
+.ed-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Mobile / narrow: stack vertically ---------- */
+@media (max-width: 900px) {
+  .ed-dashboard { padding: 12px 16px; }
+  .ed-stage { flex-direction: column; min-height: 0; gap: 12px; }
+  .ed-brand { order: 0; width: 200px; margin: 0 0 4px; }
+  .ed-dashboard.is-active .ed-brand { margin: 0 0 4px; }
+  .ed-map-wrap { order: 2; width: min(60vw, 260px); }
+  .ed-side {
+    order: 1; width: auto; min-height: 0; margin: 0; align-self: center;
+    display: flex; justify-content: center;
+  }
+  .ed-hint { position: static; width: auto; max-width: 260px; font-size: 12px; }
+  .ed-emblem-float { display: none; }
+  .ed-dashboard.is-active .ed-hint { display: none; }
+  .ed-ballot {
+    order: 3;
+    width: 100%; max-width: 560px;
+    max-height: 0;
+    transform: translateY(16px);
+    transition: max-height var(--ed-speed) var(--ed-ease), opacity .35s ease, transform var(--ed-speed) var(--ed-ease);
+  }
+  .ed-dashboard.is-active .ed-ballot { width: 100%; max-height: 80vh; margin: 0; }
+  .ed-ballot-inner { width: 100%; max-height: min(70vh, 640px); }
+  .ed-ballot-body iframe.ed-frame { height: 60vh; }
+  .ed-close { display: inline-block; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ed-dashboard *, .ed-dashboard *::before, .ed-dashboard *::after { transition-duration: .01ms !important; }
+}
