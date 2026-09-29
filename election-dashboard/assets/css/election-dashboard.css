@@ -18,7 +18,7 @@
   --ed-text: #1b1f2a;
   --ed-muted: #5b6373;
   --ed-ballot-width: 440px;
-  --ed-map-width: 340px;
+  --ed-map-width: 360px;
   --ed-ease: cubic-bezier(.22,.8,.3,1);
   --ed-speed: .55s;
 
@@ -48,32 +48,31 @@
   transition: transform var(--ed-speed) var(--ed-ease);
   z-index: 2;
 }
-.ed-map-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.ed-map-art { display: block; width: 100%; height: auto; }
+.ed-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 
-/* Engraved / hand-drawn look for the counties */
-.ed-counties { filter: drop-shadow(3px 4px 3px rgba(30, 42, 90, .35)); }
+/* Hit regions traced from the artwork. They are invisible; the artwork underneath is the map. */
 .ed-county {
-  fill: url(#ed-paper);
-  stroke: var(--ed-navy);
-  stroke-width: 1.8;
-  stroke-linejoin: round;
+  fill: rgba(255,255,255,0);   /* transparent but painted, so it still receives pointer events */
+  stroke: none;
   cursor: pointer;
   outline: none;
-  transition: fill .2s ease, stroke-width .2s ease, transform .25s ease;
-  transform-box: fill-box;
-  transform-origin: center;
 }
-.ed-county:hover, .ed-county:focus-visible, .ed-county.is-hover {
-  fill: url(#ed-paper-hover);
-  stroke-width: 3;
-  transform: translate(-2px, -2px);
+.ed-county:focus-visible { stroke: #fff; stroke-width: 8; stroke-dasharray: 18 12; }
+
+/* "Lift": a copy of the artwork clipped to the selected county, nudged up and brightened */
+.ed-lift {
+  display: none;
+  pointer-events: none;
+  filter: brightness(1.12) saturate(1.05) drop-shadow(0 14px 10px rgba(30,42,90,.45));
+  transform: translate(-14px, -18px);           /* SVG user units (the artwork is ~1250 units wide) */
+  transition: transform .25s var(--ed-ease);
 }
-.ed-county.is-pinned {
-  fill: url(#ed-paper-active);
-  stroke: var(--ed-blue-dark);
-  stroke-width: 3.2;
-}
-.ed-county:focus-visible { stroke: var(--ed-red); }
+.ed-lift.is-on { display: block; }
+.ed-lift.is-pinned { filter: brightness(1.08) drop-shadow(0 8px 6px rgba(30,42,90,.4)); transform: translate(-8px, -10px); }
+.ed-lift-clip { clip-path: url(#ed-clip-none); }
+@keyframes ed-lift-in { from { opacity: 0; transform: translate(0, 0); } to { opacity: 1; transform: translate(-14px, -18px); } }
+.ed-lift.is-on { animation: ed-lift-in .22s var(--ed-ease); }
 
 .ed-map-tip {
   position: absolute;
@@ -170,6 +169,12 @@
 }
 .ed-ballot-head img { width: 44px; height: 44px; border-radius: 50%; object-fit: contain; background: #fff; }
 .ed-ballot-title { font-size: 18px; font-weight: 800; color: var(--ed-text); margin: 0; flex: 1 1 auto; }
+.ed-open-page {
+  font-size: 11px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase;
+  color: var(--ed-blue); text-decoration: none; white-space: nowrap;
+  padding: 5px 8px; border: 1px solid #c9d3ee; border-radius: 4px; background: #fff;
+}
+.ed-open-page:hover { background: var(--ed-blue); color: #fff; }
 .ed-close {
   appearance: none; border: 0; background: transparent;
   width: 32px; height: 32px; border-radius: 50%;
@@ -200,6 +205,22 @@
 }
 .ed-ballot-body::-webkit-scrollbar { width: 8px; }
 .ed-ballot-body::-webkit-scrollbar-thumb { background: #9fb0d8; border-radius: 8px; }
+
+/* Page content pulled from the county pages (auto-sectioned by heading for search) */
+.ed-ballot-body { font-size: 13px; line-height: 1.55; }
+.ed-ballot-body h2, .ed-ballot-body h3 { font-size: 14px; font-weight: 800; color: var(--ed-blue-dark); margin: 14px 0 6px; }
+.ed-ballot-body h4, .ed-ballot-body h5 { font-size: 13px; font-weight: 800; color: var(--ed-navy); margin: 10px 0 4px; }
+.ed-ballot-body p { margin: 0 0 8px; }
+.ed-ballot-body ul, .ed-ballot-body ol { margin: 4px 0 8px; padding-left: 18px; }
+.ed-ballot-body table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0 0 10px; }
+.ed-ballot-body th, .ed-ballot-body td { border: 1px solid #dfe5f1; padding: 4px 6px; text-align: left; vertical-align: top; }
+.ed-ballot-body th { background: var(--ed-panel-head); }
+.ed-ballot-body figure { margin: 0 0 10px; }
+.ed-ballot-body a { color: var(--ed-blue); }
+.ed-ballot-body .ed-auto-section > h2:first-child, .ed-ballot-body .ed-auto-section > h3:first-child {
+  background: var(--ed-blue-dark); color: #fff; font-size: 13px; padding: 6px 10px; margin: 0 0 8px;
+}
+.ed-ballot-body .ed-auto-section { margin: 0 0 16px; }
 
 /* Ballot content conventions (see README) */
 .ed-ballot-body .ed-group { margin: 0 0 16px; }
@@ -251,7 +272,7 @@
   .ed-stage { flex-direction: column; min-height: 0; gap: 12px; }
   .ed-brand { order: 0; width: 200px; margin: 0 0 4px; }
   .ed-dashboard.is-active .ed-brand { margin: 0 0 4px; }
-  .ed-map-wrap { order: 2; width: min(60vw, 260px); }
+  .ed-map-wrap { order: 2; width: min(70vw, 300px); }
   .ed-side {
     order: 1; width: auto; min-height: 0; margin: 0; align-self: center;
     display: flex; justify-content: center;

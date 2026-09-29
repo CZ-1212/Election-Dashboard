@@ -51,6 +51,9 @@ function ed_build_config( $counties ) {
 			$entry['type'] = 'fetch';
 			$entry['src']  = rest_url( 'election-dashboard/v1/ballot/' . $slug );
 		}
+		if ( ! empty( $ballot['url'] ) ) {
+			$entry['page'] = $ballot['url']; // "Full page" link in the ballot header
+		}
 		$out[ $slug ] = $entry;
 	}
 	return array( 'counties' => $out );
@@ -72,8 +75,9 @@ function ed_shortcode( $atts ) {
 
 	$counties = ed_get_counties();
 	$config   = ed_build_config( $counties );
-	$map_svg  = file_get_contents( ED_DIR . 'assets/img/county-map.svg' );
-	$brand    = $atts['brand'] ? esc_url( $atts['brand'] ) : ED_URL . 'assets/img/brand-2026.svg';
+	$map_art  = ED_URL . 'assets/img/map-art.webp';
+	$map_svg  = str_replace( '{{MAP_ART}}', esc_url( $map_art ), file_get_contents( ED_DIR . 'assets/img/county-map.svg' ) );
+	$brand    = $atts['brand'] ? esc_url( $atts['brand'] ) : ED_URL . 'assets/img/brand-2026.webp';
 
 	$style = '';
 	if ( $atts['ballot_width'] ) { $style .= '--ed-ballot-width:' . intval( $atts['ballot_width'] ) . 'px;'; }
@@ -120,6 +124,9 @@ function ed_get_ballot_html( $slug, $county ) {
 	$html   = '';
 
 	switch ( $type ) {
+		case 'url':
+			$html = ed_get_url_content( $ballot['url'] );
+			break;
 		case 'page':
 			$post = get_post( intval( $ballot['id'] ) );
 			if ( $post && 'publish' === $post->post_status ) {
@@ -140,4 +147,67 @@ function ed_get_ballot_html( $slug, $county ) {
 		$html = '<p class="ed-empty">Ballot preview coming soon.</p>';
 	}
 	return apply_filters( 'election_dashboard_ballot_html', $html, $slug, $county );
+}
+
+/**
+ * Turn a page URL into ballot HTML.
+ * If the URL belongs to this WordPress site, the post content is used directly (no HTTP request).
+ * Otherwise the page is fetched, its main article content extracted, and the result cached for 10 minutes.
+ */
+function ed_get_url_content( $url ) {
+	$post_id = url_to_postid( $url );
+	if ( $post_id ) {
+		$post = get_post( $post_id );
+		if ( $post && 'publish' === $post->post_status ) {
+			return apply_filters( 'the_content', $post->post_content );
+		}
+	}
+
+	$key  = 'ed_ballot_' . md5( $url );
+	$html = get_transient( $key );
+	if ( false !== $html ) {
+		return $html;
+	}
+	$res = wp_remote_get( $url, array( 'timeout' => 12 ) );
+	if ( is_wp_error( $res ) || 200 !== wp_remote_retrieve_response_code( $res ) ) {
+		return '';
+	}
+	$html = ed_extract_article( wp_remote_retrieve_body( $res ) );
+	set_transient( $key, $html, 10 * MINUTE_IN_SECONDS );
+	return $html;
+}
+
+/**
+ * Pull the article body out of a full HTML page (entry-content, then <article>, then <main>).
+ */
+function ed_extract_article( $page ) {
+	if ( ! class_exists( 'DOMDocument' ) ) {
+		return $page;
+	}
+	$doc = new DOMDocument();
+	libxml_use_internal_errors( true );
+	$doc->loadHTML( '<?xml encoding="utf-8" ?>' . $page );
+	libxml_clear_errors();
+	$xp   = new DOMXPath( $doc );
+	$node = null;
+	foreach ( array(
+		"//*[contains(concat(' ', normalize-space(@class), ' '), ' entry-content ')]",
+		'//article',
+		'//main',
+	) as $q ) {
+		$list = $xp->query( $q );
+		if ( $list && $list->length ) { $node = $list->item( 0 ); break; }
+	}
+	if ( ! $node ) {
+		return $page;
+	}
+	// drop scripts, styles and forms from the extracted fragment
+	foreach ( $xp->query( './/script|.//style|.//form|.//iframe', $node ) as $junk ) {
+		$junk->parentNode->removeChild( $junk );
+	}
+	$out = '';
+	foreach ( $node->childNodes as $child ) {
+		$out .= $doc->saveHTML( $child );
+	}
+	return $out;
 }

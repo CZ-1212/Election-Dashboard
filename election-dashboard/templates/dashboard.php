@@ -8,7 +8,8 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 	<script type="application/json" class="ed-config"><?php echo wp_json_encode( $config ); ?></script>
 	<div class="ed-stage">
 		<div class="ed-map-wrap">
-			<?php echo $map_svg; // static SVG shipped with the plugin ?>
+			<img class="ed-map-art" src="<?php echo esc_url( $map_art ); ?>" width="900" height="1326" alt="" decoding="async">
+			<?php echo $map_svg; // traced hit regions + lift layer, shipped with the plugin ?>
 			<div class="ed-map-tip" aria-hidden="true"></div>
 		</div>
 		<div class="ed-side">
@@ -23,13 +24,14 @@ if ( ! defined( 'ABSPATH' ) ) { exit; }
 				<div class="ed-ballot-head">
 					<img alt="" width="44" height="44" decoding="async">
 					<h2 class="ed-ballot-title"></h2>
+					<a class="ed-open-page" href="#" target="_blank" rel="noopener" hidden><?php esc_html_e( 'Full page', 'election-dashboard' ); ?> &#8599;</a>
 					<button type="button" class="ed-close" aria-label="<?php esc_attr_e( 'Close ballot', 'election-dashboard' ); ?>">&times;</button>
 				</div>
 				<div class="ed-search"><input type="search" placeholder="<?php esc_attr_e( 'Search for measures, candidates, contests…', 'election-dashboard' ); ?>" aria-label="<?php esc_attr_e( 'Search this ballot', 'election-dashboard' ); ?>"></div>
 				<div class="ed-ballot-body"></div>
 			</div>
 		</div>
-		<div class="ed-brand"><img src="<?php echo esc_url( $brand ); ?>" alt="<?php esc_attr_e( '2026 General Election', 'election-dashboard' ); ?>" width="320" height="190"></div>
+		<div class="ed-brand"><img src="<?php echo esc_url( $brand ); ?>" alt="<?php esc_attr_e( '2026 General Election', 'election-dashboard' ); ?>" width="720" height="461" decoding="async"></div>
 	</div>
 	<p class="ed-sr" aria-live="polite"></p>
 </div>

@@ -9,19 +9,22 @@ election-dashboard/            <- the WordPress plugin (zip this folder to insta
   ballots/<county>.html        <- ballot preview fragments (Mendocino is filled in; the rest are placeholders)
   templates/dashboard.php      <- the markup
   assets/css, assets/js        <- styles and the (dependency-free) interaction script
-  assets/img/county-map.svg    <- real county boundaries, drawn in the engraved style
+  assets/img/map-art.webp      <- the hand-drawn county map artwork (900 px, 130 KB)
+  assets/img/county-map.svg    <- invisible clickable regions traced from that artwork, plus the "lift" layer
   assets/img/emblems/          <- 13 emblems as 320px WebP (about 30 KB each) with PNG fallbacks
-  assets/img/brand-2026.svg    <- "2026 General Election" logo
+  assets/img/brand-2026.webp   <- "2026 General Election" logo (PNG copy alongside)
 demo/index.html                <- open this in a browser to try it without WordPress
-tools/build-demo.py            <- rebuilds demo/index.html from the plugin files
+tools/build-demo.py            <- rebuilds demo/index.html (or a single shareable file with --inline)
+tools/trace-map-art.py         <- re-traces the clickable regions if the map artwork changes
+tools/source-art/              <- the original artwork files
 ```
 
 ## How it behaves
 
 * **Idle**: map and logo sit close together in the middle, with the "Hover over your county" hint.
-* **Hover** (mouse only): the county lifts and tints, its emblem pops in with an arrow, the map slides left and the logo slides right to make room, and the ballot panel slides open in between. Moving the mouse away from the whole dashboard closes it again.
+* **Hover** (mouse only): the county lifts off the map with a shadow, its emblem pops in with an arrow, the map slides left and the logo slides right to make room, and the ballot panel slides open in between. Moving the mouse away from the whole dashboard closes it again.
 * **Click / tap**: pins the county so the ballot stays open. Hovering another county while pinned gives a temporary peek, then snaps back. Click the same county again, the × button, or press Escape to close.
-* **Ballot panel**: county emblem and title in the header, a search box that filters contests/measures as you type, and a body that scrolls inside the box.
+* **Ballot panel**: county emblem and title in the header, a "Full page" button that opens the county's own page in a new tab, a search box that filters sections as you type, and a body that scrolls inside the box.
 * **Mobile** (under 900 px): logo, hint, map and ballot stack vertically. The hint says "Tap your county", a tap pins the ballot beneath the map and scrolls it into view.
 * **Keyboard / screen readers**: counties are tabbable buttons, Enter/Space pins, status is announced.
 * **Deep links**: `?county=mendocino` or `#county=mendocino` opens that county on load.
@@ -44,18 +47,30 @@ tools/build-demo.py            <- rebuilds demo/index.html from the plugin files
 
 3. A full-width page template with no sidebar works best, since the open layout is about 1,150 px wide.
 
-## Wiring up your ballots
+## Where the ballots come from
 
-Each county in `includes/counties.php` has a `ballot` entry. Pick whichever matches how your ballot previews exist:
+Every county in `includes/counties.php` points at its ballot page on localnewsmatters.org, for example:
+
+```php
+'mendocino' => array( 'name' => 'Mendocino', 'title' => 'Mendocino County', 'emblem' => 'mendocino',
+    'ballot' => array( 'type' => 'url', 'url' => 'https://localnewsmatters.org/mendocino-county-november-3-2026/' ) ),
+```
+
+When a visitor opens a county, the plugin loads that page's article content into the ballot window (not the site header, menus or footer). If the dashboard runs on localnewsmatters.org itself, the content comes straight from the WordPress database with no extra request. If it runs on a different site, the page is fetched, its article body extracted, and the result cached for 10 minutes. Headings in the page become searchable sections automatically.
+
+If you would rather show the page exactly as it looks on the site, including its own header, switch a county to `'type' => 'iframe'` with the same URL. It then loads in a scrollable frame inside the ballot window.
+
+Other options for the `ballot` entry:
 
 | Your ballot previews are… | Use |
 | --- | --- |
-| HTML you can paste | `['type' => 'file', 'file' => 'mendocino.html']` — drop the HTML into `ballots/` (default) |
+| A page URL (default) | `['type' => 'url', 'url' => 'https://…']` — article content, loaded on demand |
+| HTML you can paste | `['type' => 'file', 'file' => 'mendocino.html']` — drop the HTML into `ballots/` |
 | WordPress pages | `['type' => 'page', 'id' => 123]` — the page's content is loaded on demand |
 | Pages or PDFs at a URL | `['type' => 'iframe', 'url' => 'https://…']` — embedded in a scrollable frame |
 | A short inline string | `['type' => 'html', 'html' => '<div>…</div>']` |
 
-For the search box to work, mark up ballot content like this (the CSS styles it to match the mockup):
+Search works on any page with headings. For hand-written fragments you can also use this markup, which the CSS styles to match the mockup:
 
 ```html
 <div class="ed-group">
@@ -68,13 +83,14 @@ For the search box to work, mark up ballot content like this (the CSS styles it 
 </div>
 ```
 
-Anything without `.ed-contest` blocks (an iframe, an image, free-form HTML) still displays; the search box just hides itself.
+Content with no headings and no `.ed-contest` blocks (an iframe, a single image) still displays; the search box just hides itself.
 
 Developers can also change the county list or the ballot HTML with the `election_dashboard_counties` and `election_dashboard_ballot_html` filters.
 
 ## Customising the look
 
 * Colours, widths and animation speed are CSS variables at the top of `assets/css/election-dashboard.css` (`--ed-navy`, `--ed-ballot-width`, `--ed-speed`, …).
-* The map's paper/hatch fills are the three `<pattern>`s at the top of `assets/img/county-map.svg`.
-* To use your own artwork for the logo, pass `brand="…"` to the shortcode or replace `assets/img/brand-2026.svg`.
+* The lift effect (how far the county rises, its shadow) is the `.ed-lift` rule in the stylesheet.
+* To replace the map drawing, put the new file at `tools/source-art/county-map-art.webp` and run `python3 tools/trace-map-art.py`. It finds the blue areas between the red outlines and rebuilds the clickable regions. If a county moves a lot, adjust its expected centre in the script's `COUNTIES` table. San Francisco is tiny in the drawing, so the script gives it a larger round hit area.
+* To replace the logo, pass `brand="…"` to the shortcode or overwrite `assets/img/brand-2026.webp`.
 * To regenerate the demo after editing the plugin: `python3 tools/build-demo.py`.
