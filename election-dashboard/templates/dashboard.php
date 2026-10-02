@@ -6,7 +6,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 $s = $settings;
 ?>
-<div class="ed-root"><div class="ed-dashboard" id="election-dashboard"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>>
+<div class="ed-root"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>><div class="ed-dashboard" id="election-dashboard">
 	<script type="application/json" class="ed-config"><?php echo wp_json_encode( $config ); ?></script>
 
 	<header class="ed-top">
@@ -29,7 +29,7 @@ $s = $settings;
 			</div>
 			<div class="ed-map-wrap" style="aspect-ratio: <?php echo intval( $map_dims['w'] ); ?> / <?php echo intval( $map_dims['h'] ); ?>">
 				<img class="ed-map-art" src="<?php echo esc_url( $map_art ); ?>" width="<?php echo intval( $map_dims['w'] ); ?>" height="<?php echo intval( $map_dims['h'] ); ?>" alt="" decoding="async">
-				<?php echo $map_svg; // traced hit regions, markers and lift layer ?>
+				<?php echo $map_svg; // traced hit regions and markers ?>
 				<div class="ed-map-tip" aria-hidden="true"></div>
 			</div>
 		</section>

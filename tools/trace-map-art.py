@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Turns the county map artwork (tools/source-art/county-map-green.svg) into:
   election-dashboard/assets/img/map-art.webp   the drawing, trimmed, 900 px wide, transparent
-  election-dashboard/assets/img/county-map.svg invisible clickable regions + marker dots + lift layer
+  election-dashboard/assets/img/county-map.svg invisible clickable regions + marker dots
   election-dashboard/includes/map.json         the drawing's proportions
 
 Each county is a separate green shape with a white gap around it, so the script finds the
@@ -70,7 +70,6 @@ svg = ['<svg class="ed-map-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="
 for s in order:
     svg.append('<clipPath id="ed-clip-%s" clipPathUnits="userSpaceOnUse"><use href="#ed-p-%s"/></clipPath>' % (s, s))
 svg.append('</defs>')
-svg.append('<g class="ed-lift" aria-hidden="true"><g class="ed-lift-clip"><image href="{{MAP_ART}}" width="%d" height="%d"/></g></g>' % (W, H))
 svg.append('<g class="ed-counties">')
 for s in order:
     svg.append('<path id="ed-p-%s" class="ed-county" data-county="%s" d="%s" tabindex="0" role="button" aria-label="%s"><title>%s</title></path>' % (s, s, paths[s], title(s), title(s)))

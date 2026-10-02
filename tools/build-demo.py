@@ -35,7 +35,7 @@ for slug, name, title, emblem, ballot in rows:
     templates.append('<template data-ballot="%s">%s</template>' % (slug, frag))
 
 map_art = asset('img/map-art.webp', 'image/webp')
-map_svg = open(os.path.join(P, 'assets/img/county-map.svg')).read().replace('{{MAP_ART}}', map_art)
+map_svg = open(os.path.join(P, 'assets/img/county-map.svg')).read()
 settings = json.load(open(os.path.join(P, 'includes/settings.json')))
 
 def esc(s):
@@ -52,7 +52,7 @@ tpl = open(os.path.join(P, 'templates/dashboard.php')).read().split('?>', 1)[1]
 tpl = tpl.replace("<?php echo $style ? ' style=\"' . esc_attr( $style ) . '\"' : ''; ?>", '')
 tpl = tpl.replace('<?php echo wp_json_encode( $config ); ?>', json.dumps(config))
 tpl = tpl.replace('<?php echo esc_url( $map_art ); ?>', map_art)
-tpl = tpl.replace('<?php echo $map_svg; // traced hit regions, markers and lift layer ?>', map_svg)
+tpl = tpl.replace('<?php echo $map_svg; // traced hit regions and markers ?>', map_svg)
 tpl = tpl.replace("<?php echo esc_url( $icon_url . 'ballot-box.png' ); ?>", icon('ballot-box.png'))
 tpl = tpl.replace("<?php echo intval( $map_dims['w'] ); ?>", str(map_dims['w'])).replace("<?php echo intval( $map_dims['h'] ); ?>", str(map_dims['h']))
 tpl = tpl.replace("<?php echo esc_html( $s['title']['year'] ); ?>", esc(settings['title']['year']))

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Election Dashboard
  * Description: Interactive county map — hover a county to preview its emblem and ballot, click to pin it. Use the [election_dashboard] shortcode.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      Cal Metrics Consulting
  * License:     GPL-2.0-or-later
  * Text Domain: election-dashboard
@@ -10,7 +10,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'ED_VERSION', '1.1.0' );
+define( 'ED_VERSION', '1.2.0' );
 define( 'ED_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ED_URL', plugin_dir_url( __FILE__ ) );
 
@@ -71,13 +71,14 @@ function ed_build_config( $counties ) {
 
 /**
  * [election_dashboard] shortcode.
- * Attributes: height (px), map_width (px), nav_width (px). Text, links and dates live in includes/settings.json.
+ * Attributes: height (px), map_width (px), nav_width (px), pull_up (px). Text, links and dates live in includes/settings.json.
  */
 function ed_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
 		'height'    => '',   // desktop frame height in px (default 800)
 		'map_width' => '',   // map column width in px (default 340)
 		'nav_width' => '',   // side-button column width in px (default 208)
+		'pull_up'   => '',   // px to pull the dashboard up, to close a gap the theme adds above the content
 	), $atts, 'election_dashboard' );
 
 	wp_enqueue_style( 'election-dashboard' );
@@ -87,7 +88,7 @@ function ed_shortcode( $atts ) {
 	$settings = ed_get_settings();
 	$config   = ed_build_config( $counties );
 	$map_art  = ED_URL . 'assets/img/map-art.webp';
-	$map_svg  = str_replace( '{{MAP_ART}}', esc_url( $map_art ), file_get_contents( ED_DIR . 'assets/img/county-map.svg' ) );
+	$map_svg  = file_get_contents( ED_DIR . 'assets/img/county-map.svg' );
 	$icon_url = ED_URL . 'assets/img/';
 	$map_dims = json_decode( file_get_contents( ED_DIR . 'includes/map.json' ), true );
 	if ( empty( $map_dims['w'] ) ) { $map_dims = array( 'w' => 1755, 'h' => 2683 ); }
@@ -96,6 +97,7 @@ function ed_shortcode( $atts ) {
 	if ( $atts['height'] )    { $style .= '--ed-height:' . intval( $atts['height'] ) . 'px;'; }
 	if ( $atts['map_width'] ) { $style .= '--ed-map-col:' . intval( $atts['map_width'] ) . 'px;'; }
 	if ( $atts['nav_width'] ) { $style .= '--ed-nav-col:' . intval( $atts['nav_width'] ) . 'px;'; }
+	if ( $atts['pull_up'] )   { $style .= '--ed-pull-up:-' . intval( $atts['pull_up'] ) . 'px;'; }
 
 	ob_start();
 	include ED_DIR . 'templates/dashboard.php';

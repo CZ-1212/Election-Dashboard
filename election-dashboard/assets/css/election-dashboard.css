@@ -2,7 +2,7 @@
    All rules are scoped under .ed-dashboard so the widget can live inside any theme.
    Layout breakpoints respond to the width of .ed-root (a container query), so the
    dashboard stacks when the space it sits in is narrow, not only on small screens. */
-.ed-root { container: ed-root / inline-size; width: 100%; }
+.ed-root { container: ed-root / inline-size; width: 100%; margin-top: var(--ed-pull-up, 0); }
 .ed-dashboard {
   --ed-navy: #183a6b;
   --ed-blue: #1f5fbf;
@@ -57,15 +57,17 @@
 .ed-title-year { color: var(--ed-red); }
 .ed-title-icon { height: 58px; width: auto; display: block; transform: translateY(-5px); }   /* the slip on top makes the box sit low; nudge up so the box centres on the text */
 .ed-top-links { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.ed-btn {
-  display: inline-flex; align-items: center; height: 40px; padding: 0 14px;
-  border: 1.5px solid var(--ed-blue); border-radius: 0; background: #fff;
-  font-size: 14px; font-weight: 700; color: var(--ed-blue); text-decoration: none; white-space: nowrap;
+/* Written with extra specificity and !important on the properties themes like to restyle on links */
+.ed-dashboard a.ed-btn {
+  display: inline-flex; align-items: center; height: 40px; padding: 0 14px; margin: 0;
+  border: 1.5px solid var(--ed-blue); border-radius: 0; background: #fff; box-shadow: none;
+  font-family: var(--ed-font); font-size: 14px; font-weight: 700; line-height: 1; letter-spacing: 0;
+  color: var(--ed-blue) !important; text-decoration: none !important; text-transform: none; white-space: nowrap;
   transition: background .15s, color .15s, transform .15s;
 }
-.ed-btn:hover, .ed-btn:focus-visible { background: var(--ed-blue); color: #fff; text-decoration: none; }
-.ed-btn-green { background: var(--ed-green); border-color: var(--ed-green); color: #fff; padding: 0 16px; }
-.ed-btn-green:hover, .ed-btn-green:focus-visible { background: var(--ed-green-dark); border-color: var(--ed-green-dark); }
+.ed-dashboard a.ed-btn:hover, .ed-dashboard a.ed-btn:focus-visible { background: var(--ed-blue); color: #fff !important; }
+.ed-dashboard a.ed-btn-green { background: var(--ed-green); border-color: var(--ed-green); color: #fff !important; padding: 0 16px; }
+.ed-dashboard a.ed-btn-green:hover, .ed-dashboard a.ed-btn-green:focus-visible { background: var(--ed-green-dark); border-color: var(--ed-green-dark); }
 
 /* ---------- Main grid ----------
    Idle: the map and the three buttons sit together in the middle (the centre column is 0 wide).
@@ -88,13 +90,25 @@
 /* Map column */
 .ed-map-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .ed-map-head { margin-bottom: 8px; }
-.ed-map-title { font-family: var(--ed-serif); font-size: 17px; font-weight: 900; line-height: 1.2; color: var(--ed-navy); }
+.ed-map-title { font-family: var(--ed-font); font-size: 17px; font-weight: 700; line-height: 1.2; color: var(--ed-navy); }
 .ed-map-sub { display: block; margin-top: 1px; font-size: 15px; font-weight: 700; line-height: 1.25; color: var(--ed-red); }
 .ed-map-wrap { position: relative; flex: 1 1 auto; min-height: 0; max-height: 100%; align-self: center; width: 100%; }  /* aspect-ratio is set inline from includes/map.json */
 .ed-map-art { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
 .ed-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 
-.ed-county { fill: rgba(255,255,255,0); stroke: none; cursor: pointer; outline: none; }
+.ed-county {
+  fill: rgba(255,255,255,0); stroke: none; cursor: pointer; outline: none;
+  transform-box: fill-box; transform-origin: center;
+  transition: fill .18s, transform .22s var(--ed-ease), filter .22s;
+}
+/* hovered: a brighter green, a thin white edge, and a slight scale-up with a shadow so it pops forward */
+.ed-county.is-hover, .ed-county:focus-visible {
+  fill: #b3d255; stroke: #fff; stroke-width: 6; stroke-linejoin: round;
+  transform: scale(1.04);
+  filter: drop-shadow(0 10px 10px rgba(24,58,107,.35));
+}
+/* selected: a deeper green that stays until the ballot is closed */
+.ed-county.is-pinned { fill: #7e9c34; stroke: #fff; stroke-width: 6; stroke-linejoin: round; }
 .ed-county:focus-visible { stroke: var(--ed-blue); stroke-width: 10; stroke-dasharray: 18 12; }
 
 /* Marker dots at each county, like the mockup */
@@ -106,15 +120,6 @@
 .ed-marker.is-hover { fill: var(--ed-navy); r: 36; }
 .ed-marker.is-pinned { fill: var(--ed-red); r: 36; }
 
-/* Lift: a copy of the artwork clipped to the hovered county, nudged up */
-.ed-lift {
-  display: none; pointer-events: none;
-  filter: brightness(1.08) drop-shadow(0 14px 12px rgba(24,58,107,.45));
-  transform: translate(-16px, -22px);
-}
-.ed-lift.is-on { display: block; animation: ed-lift-in .22s var(--ed-ease); }
-.ed-lift.is-pinned { transform: translate(-6px, -8px); filter: brightness(1.06) drop-shadow(0 8px 6px rgba(24,58,107,.4)); }
-@keyframes ed-lift-in { from { opacity: 0; transform: translate(0,0); } to { opacity: 1; } }
 
 .ed-map-tip {
   position: absolute; pointer-events: none; z-index: 5;
@@ -144,12 +149,12 @@
 }
 .ed-ballot-head img { width: 54px; height: 54px; border-radius: 50%; object-fit: contain; background: #fff; flex: none; }
 .ed-ballot-title { flex: 1 1 auto; margin: 0; font-family: var(--ed-font); font-size: 26px; font-weight: 700; line-height: 1.15; color: var(--ed-ink); }
-.ed-open-page {
-  flex: none; background: #fff; padding: 10px 14px; font-size: 15px; font-weight: 700; letter-spacing: .02em;
-  color: var(--ed-ink-2); text-decoration: underline; box-shadow: 0 0 0 1px #d6e3f5; white-space: nowrap;
+.ed-dashboard a.ed-open-page {
+  flex: none; background: #fff; padding: 10px 14px; font-family: var(--ed-font); font-size: 15px; font-weight: 700; letter-spacing: .02em;
+  color: var(--ed-ink-2) !important; text-decoration: underline; box-shadow: 0 0 0 1px #d6e3f5; white-space: nowrap;
   text-transform: uppercase; transition: color .15s, box-shadow .15s;
 }
-.ed-open-page:hover { color: var(--ed-navy); box-shadow: 0 0 0 1px #4a8fe0; }
+.ed-dashboard a.ed-open-page:hover { color: var(--ed-navy) !important; box-shadow: 0 0 0 1px #4a8fe0; }
 .ed-close {
   appearance: none; border: 0; background: transparent; width: 32px; height: 32px; border-radius: 50%;
   font-size: 24px; line-height: 1; color: var(--ed-muted); cursor: pointer; flex: none;
@@ -200,9 +205,9 @@
 
 /* Side nav: three stacked buttons */
 .ed-side-nav { display: flex; flex-direction: column; gap: 10px; justify-content: center; min-width: 0; }
-.ed-nav-btn {
+.ed-dashboard a.ed-nav-btn {
   display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 12px;
-  border: 1px solid var(--ed-rule); background: #fff; box-shadow: var(--ed-shadow); text-decoration: none;
+  border: 1px solid var(--ed-rule); background: #fff; box-shadow: var(--ed-shadow); text-decoration: none !important;
   transition: border-color .2s, transform .25s var(--ed-ease), box-shadow .25s var(--ed-ease);
 }
 .ed-nav-btn picture { display: block; width: 100%; aspect-ratio: 3 / 2; }   /* icons scale to fill this box */
@@ -268,7 +273,7 @@
   .ed-title-text { font-size: 26px; }
   .ed-title-icon { height: 44px; }
   .ed-top-links { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .ed-btn { height: auto; min-height: 44px; padding: 6px 8px; justify-content: center; text-align: center; font-size: 13px; white-space: normal; line-height: 1.15; }
+  .ed-dashboard a.ed-btn { height: auto; min-height: 44px; padding: 6px 8px; justify-content: center; text-align: center; font-size: 13px; white-space: normal; line-height: 1.15; }
   .ed-main { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
   .ed-map-col { align-items: center; }
   .ed-map-head { align-self: stretch; text-align: center; }

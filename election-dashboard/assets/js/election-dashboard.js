@@ -1,5 +1,5 @@
 /* Election Dashboard — interaction script (no dependencies)
-   Hover a county -> it lifts, its marker grows and its name shows
+   Hover a county -> it brightens and pops forward, its marker grows and its name shows
    Click / tap    -> its ballot fills the centre panel (click again, × or Esc to close)
 */
 (function () {
@@ -18,8 +18,6 @@
     var tip      = root.querySelector('.ed-map-tip');
     var paths    = Array.prototype.slice.call(root.querySelectorAll('.ed-county'));
     var markers  = Array.prototype.slice.call(root.querySelectorAll('.ed-marker'));
-    var lift     = root.querySelector('.ed-lift');
-    var liftClip = root.querySelector('.ed-lift-clip');
     var ballot   = root.querySelector('.ed-ballot');
     var headImg  = root.querySelector('.ed-ballot-head img');
     var title    = root.querySelector('.ed-ballot-title');
@@ -52,14 +50,6 @@
     function idle(fn) { if (window.requestIdleCallback) { window.requestIdleCallback(fn, { timeout: 4000 }); } else { setTimeout(fn, 1500); } }
     function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
-    function setLift(slug) {
-      if (!lift || !liftClip) { return; }
-      if (!slug) { lift.classList.remove('is-on'); return; }
-      liftClip.setAttribute('clip-path', 'url(#ed-clip-' + slug + ')');
-      liftClip.style.clipPath = 'url(#ed-clip-' + slug + ')';
-      lift.classList.add('is-on');
-      lift.classList.toggle('is-pinned', pinned === slug);
-    }
     function paintMap() {
       var shown = hovered || pinned;
       markers.forEach(function (m) {
@@ -67,8 +57,11 @@
         m.classList.toggle('is-pinned', s === pinned);
         m.classList.toggle('is-hover', s === hovered && s !== pinned);
       });
-      paths.forEach(function (p) { p.classList.toggle('is-pinned', p.getAttribute('data-county') === pinned); });
-      setLift(shown);
+      paths.forEach(function (p) {
+        var s = p.getAttribute('data-county');
+        p.classList.toggle('is-pinned', s === pinned);
+        p.classList.toggle('is-hover', s === hovered && s !== pinned);
+      });
       showTip(shown);
     }
     // name label above the county's marker

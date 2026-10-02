@@ -29,7 +29,7 @@ Top bar with the title and four resource buttons; a three-column body with the c
 ## How it behaves
 
 * **Idle**: the map, a "Click a county to view your ballot" panel, and the three side buttons.
-* **Hover** (mouse only): the county lifts off the map with a shadow, its marker grows and its name appears.
+* **Hover** (mouse only): the county brightens to a lighter green, pops forward slightly with a shadow, its marker grows and its name appears.
 * **Click / tap**: the county's ballot fills the centre panel and its marker turns red. Click the same county again, the × button, or press Escape to go back to the prompt.
 * **Ballot panel**: county emblem and title in the header, a "Full page" button that opens the county's own page in a new tab, a search box that filters sections as you type, and a body that scrolls inside the box.
 * **Mobile** (under 900 px): everything stacks. A tap opens the ballot beneath the map and scrolls it into view.
@@ -50,7 +50,7 @@ Top bar with the title and four resource buttons; a three-column body with the c
    [election_dashboard]
    ```
 
-   Optional attributes: `height="800"` (desktop frame height), `map_width="340"`, `nav_width="208"`.
+   Optional attributes: `height="800"` (desktop frame height), `map_width="340"`, `nav_width="208"`, `pull_up="60"` (pulls the dashboard up by that many pixels to close a gap the theme adds above page content).
 
 3. A full-width page template with no sidebar works best, since the open layout is about 1,150 px wide.
 
@@ -99,6 +99,6 @@ Developers can also change the county list or the ballot HTML with the `election
 * Colours, widths and animation speed are CSS variables at the top of `assets/css/election-dashboard.css` (`--ed-navy`, `--ed-ballot-width`, `--ed-speed`, …).
 * Button labels and links, the prompt text, and the key dates are in `includes/settings.json`.
 * The three side-button icons and the ballot box come from the Canva SVGs in `tools/source-art/`, rendered to PNG/WebP in `assets/img/`. To change one, replace the SVG and re-render it with `node tools/render-svg.js in.svg out.png 528`.
-* The lift effect (how far the county rises, its shadow) is the `.ed-lift` rule in the stylesheet.
+* The hover and selected county colours are the `.ed-county.is-hover` and `.ed-county.is-pinned` rules in the stylesheet.
 * To replace the map, put the new SVG at `tools/source-art/county-map-green.svg` and run `python3 tools/trace-map-art.py`. It renders the drawing, finds each green county shape, and rebuilds the clickable regions and marker dots. If a county moves a lot, adjust its expected centre in the script's `COUNTIES` table. San Francisco is small, so the script gives it a larger round hit area.
 * To regenerate the demo after editing the plugin: `python3 tools/build-demo.py`.
