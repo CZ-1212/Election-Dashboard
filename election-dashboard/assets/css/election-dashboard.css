@@ -263,8 +263,8 @@
 }
 @container ed-root (max-width: 900px) {
   .ed-dashboard { min-height: 0; }
-  .ed-top { padding: 12px 16px 14px; gap: 12px; }
-  .ed-title { width: 100%; justify-content: center; }
+  .ed-top { padding: 12px 16px 14px; gap: 12px; border-bottom: 0; }
+  .ed-title { width: 100%; justify-content: center; padding-bottom: 10px; border-bottom: 4px solid #2c4d8a; }   /* rule sits under the title, above the buttons */
   .ed-title-text { font-size: 26px; }
   .ed-title-icon { height: 44px; }
   .ed-top-links { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
