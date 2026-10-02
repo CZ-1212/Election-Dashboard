@@ -55,7 +55,7 @@
   margin: 0; white-space: nowrap;
 }
 .ed-title-year { color: var(--ed-red); }
-.ed-title-icon { height: 58px; width: auto; display: block; }
+.ed-title-icon { height: 58px; width: auto; display: block; transform: translateY(-5px); }   /* the slip on top makes the box sit low; nudge up so the box centres on the text */
 .ed-top-links { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .ed-btn {
   display: inline-flex; align-items: center; height: 40px; padding: 0 14px;
@@ -229,7 +229,7 @@
   min-height: 150px; padding: 18px 28px;
   background: var(--ed-tint-2); border-top: 1px solid var(--ed-rule); color: var(--ed-navy);
 }
-.ed-dates-title { flex: none; width: 112px; font-size: 19px; font-weight: 700; line-height: 1.15; align-self: center; }
+.ed-dates-title { flex: none; width: 112px; font-size: 19px; font-weight: 700; line-height: 1.15; align-self: center; text-align: center; }
 .ed-timeline {
   flex: 1 1 auto; min-width: 0; list-style: none; margin: 0; padding: 0;
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px;
@@ -284,7 +284,7 @@
   .ed-nav-btn { padding: 4px 2px; flex: 1 1 0; }
   .ed-nav-btn:hover, .ed-nav-btn:focus-visible { transform: translateY(-4px); }
   .ed-dates { flex-direction: column; align-items: stretch; gap: 14px; padding: 18px 16px; }
-  .ed-dates-title { width: auto; padding-top: 0; }
+  .ed-dates-title { width: auto; padding-top: 0; text-align: left; }
   .ed-timeline { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: 1fr; gap: 10px; }
   .ed-timeline::before { display: none; }
   .ed-date { flex-direction: row; text-align: left; gap: 12px; align-items: center; }
