@@ -19,12 +19,12 @@
     },
     {
       "label": "Ask a chatbot ballot questions",
-      "url": "",
+      "url": "#",
       "style": "green",
-      "note": "Hidden until a URL is set."
+      "note": "Placeholder link until the chatbot exists; set the real URL here."
     }
   ],
-  "map_title": "Bay Area counties",
+  "map_title": "Northern California counties",
   "map_subtitle": "Click a county to see its ballot",
   "side_nav": [
     {

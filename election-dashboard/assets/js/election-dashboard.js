@@ -189,7 +189,9 @@
     // "Local coverage" style links point at a block further down the same page
     Array.prototype.forEach.call(root.querySelectorAll('.ed-top-links a[href^="#"]'), function (a) {
       a.addEventListener('click', function (ev) {
-        var target = document.querySelector(a.getAttribute('href'));
+        var href = a.getAttribute('href');
+        if (href === '#') { ev.preventDefault(); return; }   // placeholder link, nothing to open yet
+        var target = document.querySelector(href);
         if (target) { ev.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       });
     });

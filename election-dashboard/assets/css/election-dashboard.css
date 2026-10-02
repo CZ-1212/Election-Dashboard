@@ -89,12 +89,7 @@
 .ed-map-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .ed-map-head { margin-bottom: 10px; }
 .ed-map-title { font-family: var(--ed-serif); font-size: 16px; font-weight: 700; color: var(--ed-navy); }
-.ed-map-sub {
-  display: inline-block; margin-top: 4px;
-  font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ed-navy);
-  background: linear-gradient(transparent 15%, #fff09a 15%, #fff09a 90%, transparent 90%);   /* highlighter stroke */
-  padding: 0 4px;
-}
+.ed-map-sub { display: block; margin-top: 4px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ed-red); }
 .ed-map-wrap { position: relative; flex: 1 1 auto; min-height: 0; max-height: 100%; align-self: center; width: 100%; }  /* aspect-ratio is set inline from includes/map.json */
 .ed-map-art { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
 .ed-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -230,15 +225,15 @@
 
 /* ---------- Key election dates ---------- */
 .ed-dates {
-  flex: none; display: flex; align-items: flex-start; gap: 36px;
-  min-height: 150px; padding: 22px 28px 18px;
+  flex: none; display: flex; align-items: center; gap: 36px;
+  min-height: 150px; padding: 18px 28px;
   background: var(--ed-tint-2); border-top: 1px solid var(--ed-rule); color: var(--ed-navy);
 }
-.ed-dates-title { flex: none; width: 120px; font-size: 19px; font-weight: 700; line-height: 1.15; padding-top: 6px; }
+.ed-dates-title { flex: none; width: 120px; font-size: 19px; font-weight: 700; line-height: 1.15; }
 .ed-timeline {
   flex: 1 1 auto; min-width: 0; list-style: none; margin: 0; padding: 0;
   display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px;
-  position: relative;
+  position: relative; align-items: start;
 }
 /* the connecting line runs through the middle of the badges, from first to last badge */
 .ed-timeline::before {
@@ -282,7 +277,7 @@
   .ed-open-page { font-size: 12px; padding: 8px 10px; }
   .ed-side-nav { flex-direction: row; }
   .ed-nav-btn:hover, .ed-nav-btn:focus-visible { transform: translateY(-4px); }
-  .ed-dates { flex-direction: column; gap: 14px; padding: 18px 16px; }
+  .ed-dates { flex-direction: column; align-items: stretch; gap: 14px; padding: 18px 16px; }
   .ed-dates-title { width: auto; padding-top: 0; }
   .ed-timeline { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: 1fr; gap: 10px; }
   .ed-timeline::before { display: none; }
