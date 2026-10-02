@@ -19,9 +19,8 @@
     },
     {
       "label": "Ask a chatbot ballot questions",
-      "url": "#",
-      "style": "green",
-      "note": "Placeholder link until the chatbot exists; set the real URL here."
+      "url": "https://localnewsmatters.org/votemate/",
+      "style": "green"
     }
   ],
   "map_title": "Northern California counties",
