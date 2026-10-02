@@ -238,12 +238,19 @@
       var base = parseFloat(getComputedStyle(wrap).marginTop) || 0;
       wrap.style.marginTop = (base - (gap - want)) + 'px';
     }
-    if (wrap) {
-      wrap.setAttribute('data-base-margin', wrap.style.marginTop || '');
-      closeTopGap();
-      window.addEventListener('load', closeTopGap);
-      window.addEventListener('resize', closeTopGap);
+    /* fit="screen": size the dashboard to the space left between its top edge and the bottom of the window */
+    function fitScreen() {
+      if (!root.classList.contains('ed-compact')) { return; }
+      if (root.offsetWidth <= 900) { root.style.removeProperty('--ed-fit-height'); return; }   // phones stack and scroll
+      var top = root.getBoundingClientRect().top + window.scrollY;
+      var h = window.innerHeight - top - 12;
+      root.style.setProperty('--ed-fit-height', Math.max(520, Math.round(h)) + 'px');
     }
+    function layout() { closeTopGap(); fitScreen(); }
+    if (wrap) { wrap.setAttribute('data-base-margin', wrap.style.marginTop || ''); }
+    layout();
+    window.addEventListener('load', layout);
+    window.addEventListener('resize', layout);
 
     /* deep link: ?county=mendocino or #county=mendocino */
     var m = (location.hash + location.search).match(/county=([a-z0-9-]+)/i);

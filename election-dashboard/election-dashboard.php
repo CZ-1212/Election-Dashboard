@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Election Dashboard
  * Description: Interactive county map — hover a county to preview its emblem and ballot, click to pin it. Use the [election_dashboard] shortcode.
- * Version:     1.2.1
+ * Version:     1.3.0
  * Author:      Cal Metrics Consulting
  * License:     GPL-2.0-or-later
  * Text Domain: election-dashboard
@@ -10,7 +10,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'ED_VERSION', '1.2.1' );
+define( 'ED_VERSION', '1.3.0' );
 define( 'ED_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ED_URL', plugin_dir_url( __FILE__ ) );
 
@@ -71,7 +71,7 @@ function ed_build_config( $counties ) {
 
 /**
  * [election_dashboard] shortcode.
- * Attributes: height (px), map_width (px), nav_width (px), top_gap (px, default 24), pull_up (px). Text, links and dates live in includes/settings.json.
+ * Attributes: fit="screen" (no-scroll mode), height (px), map_width (px), nav_width (px), top_gap (px, default 24), pull_up (px). Text, links and dates live in includes/settings.json.
  */
 function ed_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
@@ -79,6 +79,7 @@ function ed_shortcode( $atts ) {
 		'map_width' => '',   // map column width in px (default 340)
 		'nav_width' => '',   // side-button column width in px (default 208)
 		'pull_up'   => '',   // px to pull the dashboard up by a fixed amount (manual alternative to top_gap)
+		'fit'       => '',   // "screen" sizes the dashboard to fit in the window without scrolling (desktop only)
 		'top_gap'   => '24', // px of space wanted between the site header and the dashboard; the script closes any extra gap the theme adds. Use top_gap="off" to disable.
 	), $atts, 'election_dashboard' );
 
@@ -100,6 +101,7 @@ function ed_shortcode( $atts ) {
 	if ( $atts['nav_width'] ) { $style .= '--ed-nav-col:' . intval( $atts['nav_width'] ) . 'px;'; }
 	if ( $atts['pull_up'] )   { $style .= '--ed-pull-up:-' . intval( $atts['pull_up'] ) . 'px;'; }
 	$top_gap = is_numeric( $atts['top_gap'] ) ? intval( $atts['top_gap'] ) : '';
+	$classes = 'ed-dashboard' . ( 'screen' === $atts['fit'] ? ' ed-compact' : '' );
 
 	ob_start();
 	include ED_DIR . 'templates/dashboard.php';

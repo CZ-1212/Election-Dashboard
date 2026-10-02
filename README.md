@@ -50,7 +50,7 @@ Top bar with the title and four resource buttons; a three-column body with the c
    [election_dashboard]
    ```
 
-   Optional attributes: `height="800"` (desktop frame height), `map_width="340"`, `nav_width="208"`, `top_gap="24"` (how much space to leave between the site header and the dashboard; the script measures the gap the theme adds and closes the excess, as long as nothing else sits in that space; `top_gap="off"` disables it), `pull_up="60"` (a fixed pull-up instead).
+   Optional attributes: `fit="screen"` (no-scroll mode: the dashboard sizes itself to the space below the site header so the whole thing is visible without scrolling; the map and buttons shrink to fit), `height="800"` (desktop frame height), `map_width="340"`, `nav_width="208"`, `top_gap="24"` (how much space to leave between the site header and the dashboard; the script measures the gap the theme adds and closes the excess, as long as nothing else sits in that space; `top_gap="off"` disables it), `pull_up="60"` (a fixed pull-up instead).
 
 3. A full-width page template with no sidebar works best, since the open layout is about 1,150 px wide.
 

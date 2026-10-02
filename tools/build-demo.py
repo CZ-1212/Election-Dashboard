@@ -51,6 +51,7 @@ dates = ''.join('<li class="ed-date%s"><div class="ed-date-badge"><span class="e
 tpl = open(os.path.join(P, 'templates/dashboard.php')).read().split('?>', 1)[1]
 tpl = tpl.replace("<?php echo $style ? ' style=\"' . esc_attr( $style ) . '\"' : ''; ?>", '')
 tpl = tpl.replace("<?php echo '' !== $top_gap ? ' data-top-gap=\"' . intval( $top_gap ) . '\"' : ''; ?>", '')
+tpl = tpl.replace('<?php echo esc_attr( $classes ); ?>', 'ed-dashboard')
 tpl = tpl.replace('<?php echo wp_json_encode( $config ); ?>', json.dumps(config))
 tpl = tpl.replace('<?php echo esc_url( $map_art ); ?>', map_art)
 tpl = tpl.replace('<?php echo $map_svg; // traced hit regions and markers ?>', map_svg)
@@ -83,6 +84,7 @@ body { background: var(--page-bg); color: var(--page-fg); margin: 0; padding-inl
 .pv-seg button + button { border-left: 1px solid #c6d6ee; }
 .pv-seg button[aria-pressed="true"] { background: #1f5fbf; color: #fff; }
 .pv-stage { position: relative; overflow: hidden; }
+.pv-fakeheader { height: 170px; margin: 0 auto 0; max-width: 1400px; display: flex; align-items: center; justify-content: center; background: repeating-linear-gradient(135deg, #f1f3f8 0 12px, #e6eaf3 12px 24px); color: var(--page-muted); font-size: 13px; border: 1px dashed #c6d6ee; border-bottom: 0; }
 .pv-stage .ed-root { transform-origin: top left; }
 .pv-stage.is-phone .ed-root { width: 390px; margin: 0 auto; }
 .ed-dashboard { border: 1px solid #e3e8f2; }
@@ -90,7 +92,8 @@ body { background: var(--page-bg); color: var(--page-fg); margin: 0; padding-inl
 %s
 .ed-dashboard { padding-inline: 0; }
 </style>
-<div class="pv-bar"><b>Preview build.</b> Click a county to open its ballot. <span>View:</span> <span class="pv-seg" role="group" aria-label="Preview size"><button type="button" id="pv-desktop" data-view="desktop">Desktop</button><button type="button" id="pv-phone" data-view="phone">Phone</button><button type="button" id="pv-fit" data-view="fit">Fit window</button></span></div>
+<div class="pv-bar"><b>Preview build.</b> Click a county to open its ballot. <span>View:</span> <span class="pv-seg" role="group" aria-label="Preview size"><button type="button" id="pv-desktop" data-view="desktop">Desktop</button><button type="button" id="pv-phone" data-view="phone">Phone</button><button type="button" id="pv-fit" data-view="fit">Fit window</button><button type="button" id="pv-noscroll" data-view="noscroll">No-scroll</button></span></div>
+<div class="pv-fakeheader" id="pv-fakeheader" hidden>Your site header and navigation (about 170 px) would be here</div>
 <div class="pv-stage" id="pv-stage">
 %s
 </div>
@@ -100,9 +103,17 @@ body { background: var(--page-bg); color: var(--page-fg); margin: 0; padding-inl
 (function () {
   var stage = document.getElementById('pv-stage'), root = stage.querySelector('.ed-root'), btns = document.querySelectorAll('.pv-seg button');
   var view = 'fit';
+  var dash = root.querySelector('.ed-dashboard'), fake = document.getElementById('pv-fakeheader');
   function apply() {
     stage.classList.toggle('is-phone', view === 'phone');
     root.style.width = ''; root.style.transform = ''; stage.style.height = '';
+    fake.hidden = view !== 'noscroll';
+    dash.classList.toggle('ed-compact', view === 'noscroll');
+    if (view === 'noscroll') {
+      // the dashboard gets whatever is left below the (simulated) header; resize the window to see it adapt
+      var avail = window.innerHeight - fake.getBoundingClientRect().bottom - 12;
+      dash.style.setProperty('--ed-fit-height', Math.max(520, Math.round(avail)) + 'px');
+    } else { dash.style.removeProperty('--ed-fit-height'); }
     if (view === 'desktop') {
       var avail = stage.clientWidth, s = Math.min(1, avail / 1400);
       root.style.width = '1400px'; root.style.transform = 'scale(' + s + ')';

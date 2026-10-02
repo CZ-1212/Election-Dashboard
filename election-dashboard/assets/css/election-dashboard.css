@@ -92,7 +92,7 @@
 .ed-map-head { margin-bottom: 8px; }
 .ed-map-title { font-family: var(--ed-font); font-size: 17px; font-weight: 700; line-height: 1.2; color: var(--ed-navy); }
 .ed-map-sub { display: block; margin-top: 1px; font-size: 15px; font-weight: 700; line-height: 1.25; color: var(--ed-red); }
-.ed-map-wrap { position: relative; flex: 1 1 auto; min-height: 0; max-height: 100%; align-self: center; width: 100%; }  /* aspect-ratio is set inline from includes/map.json */
+.ed-map-wrap { position: relative; flex: 1 1 auto; min-height: 0; width: auto; max-width: 100%; align-self: center; }  /* aspect-ratio is set inline from includes/map.json; the map scales to the height available */
 .ed-map-art { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
 .ed-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 
@@ -228,6 +228,29 @@
 .ed-nav-btn:hover img, .ed-nav-btn:focus-visible img { transform: scale(1.06); }
 .ed-nav-btn:hover span::after, .ed-nav-btn:focus-visible span::after { left: 0; right: 0; }
 
+/* ---------- Fit-to-screen mode ([election_dashboard fit="screen"]) ----------
+   The script sets --ed-fit-height to the space between the dashboard's top and the bottom of the
+   window, so the whole dashboard is visible without scrolling. Everything tightens a little. */
+.ed-dashboard.ed-compact { --ed-map-col: 300px; --ed-nav-col: 164px; min-height: 0; height: var(--ed-fit-height, auto); }
+.ed-compact .ed-top { min-height: 64px; padding: 8px 24px; }
+.ed-compact .ed-title-text { font-size: 26px; }
+.ed-compact .ed-title-icon { height: 48px; }
+.ed-compact .ed-dashboard a.ed-btn, .ed-dashboard.ed-compact a.ed-btn { height: 36px; font-size: 13px; padding: 0 12px; }
+.ed-compact .ed-main { padding: 10px 24px 8px; gap: 20px; }
+.ed-compact .ed-map-head { margin-bottom: 4px; }
+.ed-compact .ed-map-title { font-size: 15px; }
+.ed-compact .ed-map-sub { font-size: 13px; }
+.ed-compact .ed-side-nav { min-height: 0; gap: 8px; }
+.ed-dashboard.ed-compact a.ed-nav-btn { padding: 6px 8px; min-height: 0; flex: 0 1 auto; }
+.ed-compact .ed-nav-btn picture { max-height: 100%; }
+.ed-compact .ed-ballot-head { padding: 8px 14px; gap: 12px; }
+.ed-compact .ed-ballot-head img { width: 44px; height: 44px; }
+.ed-compact .ed-ballot-title { font-size: 21px; }
+.ed-compact .ed-dates { min-height: 0; padding: 10px 24px; gap: 14px; }
+.ed-compact .ed-dates-title { font-size: 16px; width: 96px; }
+.ed-compact .ed-date-text { font-size: 11px; }
+.ed-compact .ed-date-badge { width: 40px; }
+
 /* ---------- Key election dates ---------- */
 .ed-dates {
   flex: none; display: flex; align-items: center; gap: 18px;
@@ -267,7 +290,7 @@
   .ed-title-text { font-size: 24px; }
 }
 @container ed-root (max-width: 900px) {
-  .ed-dashboard { min-height: 0; }
+  .ed-dashboard, .ed-dashboard.ed-compact { min-height: 0; height: auto; }
   .ed-top { padding: 12px 16px 14px; gap: 12px; border-bottom: 0; }
   .ed-title { width: 100%; justify-content: center; padding-bottom: 10px; border-bottom: 4px solid #2c4d8a; }   /* rule sits under the title, above the buttons */
   .ed-title-text { font-size: 26px; }
