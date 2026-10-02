@@ -42,9 +42,10 @@ def esc(s):
     return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
 
 # Render the PHP template by hand: it is small and the loops are simple.
-icon = lambda rel: asset('img/' + rel, 'image/svg+xml')
+icon = lambda rel: asset('img/' + rel, 'image/webp' if rel.endswith('.webp') else 'image/png')
+map_dims = json.load(open(os.path.join(P, 'includes/map.json')))
 links = ''.join('<a class="ed-btn%s" href="%s">%s</a>\n' % (' ed-btn-' + l['style'] if l.get('style') else '', esc(l['url']), esc(l['label'])) for l in settings['header_links'] if l.get('url'))
-nav = ''.join('<a class="ed-nav-btn" href="%s"><img src="%s" alt="" width="180" height="120" decoding="async"><span>%s</span></a>\n' % (esc(n['url']), icon('nav/' + n['icon']), esc(n['label'])) for n in settings['side_nav'])
+nav = ''.join('<a class="ed-nav-btn" href="%s" aria-label="%s"><picture><source srcset="%s" type="image/webp"><img src="%s" alt="" width="543" height="362" decoding="async"></picture></a>\n' % (esc(n['url']), esc(n['label']), icon('nav/' + n['icon']), icon('nav/' + n['icon'].replace('.webp', '.png'))) for n in settings['side_nav'])
 dates = ''.join('<li class="ed-date%s"><div class="ed-date-badge"><span class="ed-date-month">%s</span><span class="ed-date-day">%s</span></div><div class="ed-date-text">%s</div></li>\n' % (' is-highlight' if d.get('highlight') else '', esc(d['month']), esc(d['day']), d['text']) for d in settings['key_dates'])
 
 tpl = open(os.path.join(P, 'templates/dashboard.php')).read().split('?>', 1)[1]
@@ -52,7 +53,8 @@ tpl = tpl.replace("<?php echo $style ? ' style=\"' . esc_attr( $style ) . '\"' :
 tpl = tpl.replace('<?php echo wp_json_encode( $config ); ?>', json.dumps(config))
 tpl = tpl.replace('<?php echo esc_url( $map_art ); ?>', map_art)
 tpl = tpl.replace('<?php echo $map_svg; // traced hit regions, markers and lift layer ?>', map_svg)
-tpl = tpl.replace("<?php echo esc_url( $icon_url . 'ballot-box.svg' ); ?>", icon('ballot-box.svg'))
+tpl = tpl.replace("<?php echo esc_url( $icon_url . 'ballot-box.png' ); ?>", icon('ballot-box.png'))
+tpl = tpl.replace("<?php echo intval( $map_dims['w'] ); ?>", str(map_dims['w'])).replace("<?php echo intval( $map_dims['h'] ); ?>", str(map_dims['h']))
 tpl = tpl.replace("<?php echo esc_html( $s['title']['year'] ); ?>", esc(settings['title']['year']))
 tpl = tpl.replace("<?php echo esc_html( $s['title']['text'] ); ?>", esc(settings['title']['text']))
 for key in ('map_title', 'map_subtitle', 'prompt_title', 'prompt_text', 'key_dates_title'):

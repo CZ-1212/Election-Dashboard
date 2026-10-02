@@ -89,6 +89,8 @@ function ed_shortcode( $atts ) {
 	$map_art  = ED_URL . 'assets/img/map-art.webp';
 	$map_svg  = str_replace( '{{MAP_ART}}', esc_url( $map_art ), file_get_contents( ED_DIR . 'assets/img/county-map.svg' ) );
 	$icon_url = ED_URL . 'assets/img/';
+	$map_dims = json_decode( file_get_contents( ED_DIR . 'includes/map.json' ), true );
+	if ( empty( $map_dims['w'] ) ) { $map_dims = array( 'w' => 1755, 'h' => 2683 ); }
 
 	$style = '';
 	if ( $atts['height'] )    { $style .= '--ed-height:' . intval( $atts['height'] ) . 'px;'; }

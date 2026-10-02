@@ -31,17 +31,17 @@
   "side_nav": [
     {
       "label": "State",
-      "icon": "icon-state.svg",
+      "icon": "icon-state.webp",
       "url": "https://localnewsmatters.org/state-races/"
     },
     {
       "label": "Senate & Assembly",
-      "icon": "icon-senate-assembly.svg",
+      "icon": "icon-senate-assembly.webp",
       "url": "https://localnewsmatters.org/state-assembly-senate/"
     },
     {
       "label": "Counties",
-      "icon": "icon-counties.svg",
+      "icon": "icon-counties.webp",
       "url": "https://localnewsmatters.org/november-3-general-election/"
     }
   ],

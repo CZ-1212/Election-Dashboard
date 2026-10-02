@@ -9,16 +9,17 @@ election-dashboard/            <- the WordPress plugin (zip this folder to insta
   ballots/<county>.html        <- ballot preview fragments (Mendocino is filled in; the rest are placeholders)
   templates/dashboard.php      <- the markup
   assets/css, assets/js        <- styles and the (dependency-free) interaction script
-  assets/img/map-art.webp      <- the hand-drawn county map artwork (900 px, 130 KB)
-  assets/img/county-map.svg    <- invisible clickable regions traced from that artwork, plus the "lift" layer
+  assets/img/map-art.webp      <- the green county map (900 px, 18 KB)
+  assets/img/county-map.svg    <- invisible clickable regions traced from that map, marker dots, and the "lift" layer
   assets/img/emblems/          <- 13 emblems as 320px WebP (about 30 KB each) with PNG fallbacks
-  assets/img/nav/*.svg         <- icons for the three side buttons (stand-ins until the final art arrives)
-  assets/img/ballot-box.svg    <- ballot box next to the title (stand-in)
+  assets/img/nav/*.webp|png    <- the three side-button icons (labels are part of the artwork)
+  assets/img/ballot-box.png    <- ballot box next to the title
   includes/settings.json       <- title, button labels and links, prompt text, key election dates
 demo/index.html                <- open this in a browser to try it without WordPress
 tools/build-demo.py            <- rebuilds demo/index.html (or a single shareable file with --inline)
 tools/trace-map-art.py         <- re-traces the clickable regions if the map artwork changes
-tools/source-art/              <- the original artwork files
+tools/render-svg.js            <- renders an SVG to PNG with the bundled browser (used by the tracer)
+tools/source-art/              <- the original Canva SVG exports (map, icons, ballot box)
 ```
 
 ## Layout (v8)
@@ -97,7 +98,7 @@ Developers can also change the county list or the ballot HTML with the `election
 
 * Colours, widths and animation speed are CSS variables at the top of `assets/css/election-dashboard.css` (`--ed-navy`, `--ed-ballot-width`, `--ed-speed`, …).
 * Button labels and links, the prompt text, and the key dates are in `includes/settings.json`.
-* The three side-button icons are `assets/img/nav/*.svg` and the ballot box is `assets/img/ballot-box.svg`; replace the files to change them.
+* The three side-button icons and the ballot box come from the Canva SVGs in `tools/source-art/`, rendered to PNG/WebP in `assets/img/`. To change one, replace the SVG and re-render it with `node tools/render-svg.js in.svg out.png 528`.
 * The lift effect (how far the county rises, its shadow) is the `.ed-lift` rule in the stylesheet.
-* To replace the map drawing, put the new file at `tools/source-art/county-map-art.webp` and run `python3 tools/trace-map-art.py`. It finds the blue areas between the red outlines and rebuilds the clickable regions. If a county moves a lot, adjust its expected centre in the script's `COUNTIES` table. San Francisco is tiny in the drawing, so the script gives it a larger round hit area.
+* To replace the map, put the new SVG at `tools/source-art/county-map-green.svg` and run `python3 tools/trace-map-art.py`. It renders the drawing, finds each green county shape, and rebuilds the clickable regions and marker dots. If a county moves a lot, adjust its expected centre in the script's `COUNTIES` table. San Francisco is small, so the script gives it a larger round hit area.
 * To regenerate the demo after editing the plugin: `python3 tools/build-demo.py`.

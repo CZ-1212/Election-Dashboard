@@ -12,7 +12,7 @@ $s = $settings;
 	<header class="ed-top">
 		<div class="ed-title">
 			<h2 class="ed-title-text"><span class="ed-title-year"><?php echo esc_html( $s['title']['year'] ); ?></span> <?php echo esc_html( $s['title']['text'] ); ?></h2>
-			<img class="ed-title-icon" src="<?php echo esc_url( $icon_url . 'ballot-box.svg' ); ?>" alt="" width="42" height="42">
+			<img class="ed-title-icon" src="<?php echo esc_url( $icon_url . 'ballot-box.png' ); ?>" alt="" width="42" height="42" decoding="async">
 		</div>
 		<nav class="ed-top-links" aria-label="<?php esc_attr_e( 'Election resources', 'election-dashboard' ); ?>">
 			<?php foreach ( $s['header_links'] as $l ) : if ( empty( $l['url'] ) ) { continue; } ?>
@@ -27,8 +27,8 @@ $s = $settings;
 				<div class="ed-map-title"><?php echo esc_html( $s['map_title'] ); ?></div>
 				<div class="ed-map-sub"><?php echo esc_html( $s['map_subtitle'] ); ?></div>
 			</div>
-			<div class="ed-map-wrap">
-				<img class="ed-map-art" src="<?php echo esc_url( $map_art ); ?>" width="900" height="1326" alt="" decoding="async">
+			<div class="ed-map-wrap" style="aspect-ratio: <?php echo intval( $map_dims['w'] ); ?> / <?php echo intval( $map_dims['h'] ); ?>">
+				<img class="ed-map-art" src="<?php echo esc_url( $map_art ); ?>" width="<?php echo intval( $map_dims['w'] ); ?>" height="<?php echo intval( $map_dims['h'] ); ?>" alt="" decoding="async">
 				<?php echo $map_svg; // traced hit regions, markers and lift layer ?>
 				<div class="ed-map-tip" aria-hidden="true"></div>
 			</div>
@@ -56,9 +56,11 @@ $s = $settings;
 
 		<nav class="ed-side-nav" aria-label="<?php esc_attr_e( 'Other ballots', 'election-dashboard' ); ?>">
 			<?php foreach ( $s['side_nav'] as $n ) : ?>
-			<a class="ed-nav-btn" href="<?php echo esc_url( $n['url'] ); ?>">
-				<img src="<?php echo esc_url( $icon_url . 'nav/' . $n['icon'] ); ?>" alt="" width="180" height="120" decoding="async">
-				<span><?php echo esc_html( $n['label'] ); ?></span>
+			<a class="ed-nav-btn" href="<?php echo esc_url( $n['url'] ); ?>" aria-label="<?php echo esc_attr( $n['label'] ); ?>">
+				<picture>
+					<source srcset="<?php echo esc_url( $icon_url . 'nav/' . $n['icon'] ); ?>" type="image/webp">
+					<img src="<?php echo esc_url( $icon_url . 'nav/' . str_replace( '.webp', '.png', $n['icon'] ) ); ?>" alt="" width="543" height="362" decoding="async">
+				</picture>
 			</a>
 			<?php endforeach; ?>
 		</nav>
