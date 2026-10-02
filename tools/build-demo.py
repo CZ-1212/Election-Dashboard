@@ -43,7 +43,7 @@ def esc(s):
 
 # Render the PHP template by hand: it is small and the loops are simple.
 icon = lambda rel: asset('img/' + rel, 'image/svg+xml')
-links = ''.join('<a class="ed-btn%s" href="%s">%s</a>\n' % (' ed-btn-' + l['style'] if l.get('style') else '', esc(l['url']), esc(l['label'])) for l in settings['header_links'])
+links = ''.join('<a class="ed-btn%s" href="%s">%s</a>\n' % (' ed-btn-' + l['style'] if l.get('style') else '', esc(l['url']), esc(l['label'])) for l in settings['header_links'] if l.get('url'))
 nav = ''.join('<a class="ed-nav-btn" href="%s"><img src="%s" alt="" width="180" height="120" decoding="async"><span>%s</span></a>\n' % (esc(n['url']), icon('nav/' + n['icon']), esc(n['label'])) for n in settings['side_nav'])
 dates = ''.join('<li class="ed-date%s"><div class="ed-date-badge"><span class="ed-date-month">%s</span><span class="ed-date-day">%s</span></div><div class="ed-date-text">%s</div></li>\n' % (' is-highlight' if d.get('highlight') else '', esc(d['month']), esc(d['day']), d['text']) for d in settings['key_dates'])
 
@@ -57,7 +57,7 @@ tpl = tpl.replace("<?php echo esc_html( $s['title']['year'] ); ?>", esc(settings
 tpl = tpl.replace("<?php echo esc_html( $s['title']['text'] ); ?>", esc(settings['title']['text']))
 for key in ('map_title', 'map_subtitle', 'prompt_title', 'prompt_text', 'key_dates_title'):
     tpl = tpl.replace("<?php echo esc_html( $s['%s'] ); ?>" % key, esc(settings[key]))
-tpl = re.sub(r"<\?php foreach \( \$s\['header_links'\] as \$l \) : \?>.*?<\?php endforeach; \?>", links, tpl, flags=re.S)
+tpl = re.sub(r"<\?php foreach \( \$s\['header_links'\] as \$l \) :.*?<\?php endforeach; \?>", links, tpl, flags=re.S)
 tpl = re.sub(r"<\?php foreach \( \$s\['side_nav'\] as \$n \) : \?>.*?<\?php endforeach; \?>", nav, tpl, flags=re.S)
 tpl = re.sub(r"<\?php foreach \( \$s\['key_dates'\] as \$d \) : \?>.*?<\?php endforeach; \?>", dates, tpl, flags=re.S)
 tpl = re.sub(r"<\?php esc_(?:html|attr)_e\( '([^']+)', 'election-dashboard' \); \?>", r'\1', tpl)

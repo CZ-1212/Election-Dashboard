@@ -185,6 +185,13 @@
     window.addEventListener('resize', function () { showTip(hovered || pinned); });
 
     if (closeBtn) { closeBtn.addEventListener('click', close); }
+    // "Local coverage" style links point at a block further down the same page
+    Array.prototype.forEach.call(root.querySelectorAll('.ed-top-links a[href^="#"]'), function (a) {
+      a.addEventListener('click', function (ev) {
+        var target = document.querySelector(a.getAttribute('href'));
+        if (target) { ev.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
     document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && pinned) { close(); } });
 
     /* ---------- search / filter ---------- */

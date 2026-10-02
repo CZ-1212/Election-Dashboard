@@ -15,7 +15,7 @@ $s = $settings;
 			<img class="ed-title-icon" src="<?php echo esc_url( $icon_url . 'ballot-box.svg' ); ?>" alt="" width="42" height="42">
 		</div>
 		<nav class="ed-top-links" aria-label="<?php esc_attr_e( 'Election resources', 'election-dashboard' ); ?>">
-			<?php foreach ( $s['header_links'] as $l ) : ?>
+			<?php foreach ( $s['header_links'] as $l ) : if ( empty( $l['url'] ) ) { continue; } ?>
 			<a class="ed-btn<?php echo ! empty( $l['style'] ) ? ' ed-btn-' . esc_attr( $l['style'] ) : ''; ?>" href="<?php echo esc_url( $l['url'] ); ?>"><?php echo esc_html( $l['label'] ); ?></a>
 			<?php endforeach; ?>
 		</nav>

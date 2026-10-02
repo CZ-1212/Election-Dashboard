@@ -1,27 +1,82 @@
 {
-  "title": { "year": "2026", "text": "General Election" },
+  "title": {
+    "year": "2026",
+    "text": "General Election"
+  },
   "header_links": [
-    { "label": "Local coverage", "url": "https://localnewsmatters.org/civic-engagement-hub/" },
-    { "label": "Find your polling place", "url": "https://www.sos.ca.gov/elections/polling-place" },
-    { "label": "Register to vote", "url": "https://registertovote.ca.gov/" },
-    { "label": "Ask a chatbot ballot questions", "url": "#", "style": "green" }
+    {
+      "label": "Local coverage",
+      "url": "#local-coverage",
+      "note": "Scrolls to the news coverage block beneath the dashboard on the same page. Give that block id=\"local-coverage\"."
+    },
+    {
+      "label": "Find your polling place",
+      "url": "https://www.sos.ca.gov/elections/polling-place"
+    },
+    {
+      "label": "Register to vote",
+      "url": "https://registertovote.ca.gov/"
+    },
+    {
+      "label": "Ask a chatbot ballot questions",
+      "url": "",
+      "style": "green",
+      "note": "Hidden until a URL is set."
+    }
   ],
   "map_title": "Bay Area counties",
   "map_subtitle": "Click a county to see its ballot",
   "prompt_title": "Click a county to view your ballot",
   "prompt_text": "Choose any of the 13 counties on the map. Its measures, contests and candidates will appear here.",
   "side_nav": [
-    { "label": "State", "icon": "icon-state.svg", "url": "#" },
-    { "label": "Senate & Assembly", "icon": "icon-senate-assembly.svg", "url": "#" },
-    { "label": "Counties", "icon": "icon-counties.svg", "url": "#" }
+    {
+      "label": "State",
+      "icon": "icon-state.svg",
+      "url": "https://localnewsmatters.org/state-races/"
+    },
+    {
+      "label": "Senate & Assembly",
+      "icon": "icon-senate-assembly.svg",
+      "url": "https://localnewsmatters.org/state-assembly-senate/"
+    },
+    {
+      "label": "Counties",
+      "icon": "icon-counties.svg",
+      "url": "https://localnewsmatters.org/november-3-general-election/"
+    }
   ],
   "key_dates_title": "Key election dates",
   "key_dates": [
-    { "month": "OCT", "day": "5",  "text": "Vote-by-mail ballots mailed; ballot drop boxes open" },
-    { "month": "OCT", "day": "19", "text": "Voter registration deadline" },
-    { "month": "OCT", "day": "24", "text": "Early vote centers begin opening" },
-    { "month": "OCT", "day": "31", "text": "All vote centers open" },
-    { "month": "NOV", "day": "3",  "text": "<b>Election Day</b>, 7 a.m.–8 p.m.", "highlight": true },
-    { "month": "NOV", "day": "10", "text": "Deadline for eligible mailed ballots to arrive" }
+    {
+      "month": "OCT",
+      "day": "5",
+      "text": "Vote-by-mail ballots mailed; ballot drop boxes open"
+    },
+    {
+      "month": "OCT",
+      "day": "19",
+      "text": "Voter registration deadline"
+    },
+    {
+      "month": "OCT",
+      "day": "24",
+      "text": "Early vote centers begin opening"
+    },
+    {
+      "month": "OCT",
+      "day": "31",
+      "text": "All vote centers open"
+    },
+    {
+      "month": "NOV",
+      "day": "3",
+      "text": "<b>Election Day</b>, 7 a.m.–8 p.m.",
+      "highlight": true
+    },
+    {
+      "month": "NOV",
+      "day": "10",
+      "text": "Deadline for eligible mailed ballots to arrive"
+    }
   ]
 }
