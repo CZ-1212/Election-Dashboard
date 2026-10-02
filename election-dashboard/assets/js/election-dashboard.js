@@ -1,13 +1,9 @@
 /* Election Dashboard — interaction script (no dependencies)
-   Hover a county  -> preview its emblem + ballot (desktop pointer only)
-   Click / tap     -> pin it so the ballot stays open
-   Click again / × -> unpin and close
+   Hover a county -> it lifts, its marker grows and its name shows
+   Click / tap    -> its ballot fills the centre panel (click again, × or Esc to close)
 */
 (function () {
   'use strict';
-
-  var HOVER_CLOSE_DELAY = 320; // ms grace period after the pointer leaves the dashboard
-  var OPEN_LOCK = 650;         // ms the opening animation runs; hover changes are ignored meanwhile
 
   function init(root) {
     if (root.__edInit) { return; }
@@ -18,38 +14,30 @@
     try { cfg = JSON.parse(cfgEl ? cfgEl.textContent : '{}'); } catch (e) { cfg = {}; }
     var counties = cfg.counties || {};
 
-    var stage      = root.querySelector('.ed-stage');
-    var mapWrap    = root.querySelector('.ed-map-wrap');
-    var tip        = root.querySelector('.ed-map-tip');
-    var lift       = root.querySelector('.ed-lift');
-    var liftClip   = root.querySelector('.ed-lift-clip');
-    var pageLink   = root.querySelector('.ed-open-page');
-    var paths      = Array.prototype.slice.call(root.querySelectorAll('.ed-county'));
-    var side       = root.querySelector('.ed-side');
-    var floatImg   = root.querySelector('.ed-emblem-float img');
-    var ballot     = root.querySelector('.ed-ballot');
-    var headImg    = root.querySelector('.ed-ballot-head img');
-    var title      = root.querySelector('.ed-ballot-title');
-    var closeBtn   = root.querySelector('.ed-close');
+    var mapWrap  = root.querySelector('.ed-map-wrap');
+    var tip      = root.querySelector('.ed-map-tip');
+    var paths    = Array.prototype.slice.call(root.querySelectorAll('.ed-county'));
+    var markers  = Array.prototype.slice.call(root.querySelectorAll('.ed-marker'));
+    var lift     = root.querySelector('.ed-lift');
+    var liftClip = root.querySelector('.ed-lift-clip');
+    var ballot   = root.querySelector('.ed-ballot');
+    var headImg  = root.querySelector('.ed-ballot-head img');
+    var title    = root.querySelector('.ed-ballot-title');
+    var pageLink = root.querySelector('.ed-open-page');
+    var closeBtn = root.querySelector('.ed-close');
+    var scroller = root.querySelector('.ed-ballot-scroll');
     var searchWrap = root.querySelector('.ed-search');
-    var search     = root.querySelector('.ed-search input');
-    var body       = root.querySelector('.ed-ballot-body');
-    var status     = root.querySelector('.ed-sr');
+    var search   = root.querySelector('.ed-search input');
+    var body     = root.querySelector('.ed-ballot-body');
+    var status   = root.querySelector('.ed-sr');
 
-    var pinned = null;   // slug the user clicked
-    var current = null;  // slug currently displayed
-    var closeTimer = null;
-    var cache = {};      // slug -> HTML string
-    var pending = {};    // slug -> Promise
+    var pinned = null;      // county whose ballot is open
+    var hovered = null;
+    var cache = {}, pending = {};
     var emblemsPreloaded = false;
 
-    var supportsHover = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-
     /* ---------- helpers ---------- */
-    function pathFor(slug) {
-      for (var i = 0; i < paths.length; i++) { if (paths[i].getAttribute('data-county') === slug) { return paths[i]; } }
-      return null;
-    }
+    function byCounty(list, slug) { return list.filter(function (el) { return el.getAttribute('data-county') === slug; })[0]; }
     function setImg(img, county) {
       if (!img || !county) { return; }
       img.onerror = function () { if (county.emblemFallback && img.src !== county.emblemFallback) { img.src = county.emblemFallback; } };
@@ -59,14 +47,10 @@
     function preloadEmblems() {
       if (emblemsPreloaded) { return; }
       emblemsPreloaded = true;
-      Object.keys(counties).forEach(function (slug) {
-        var im = new Image();
-        im.src = counties[slug].emblem;
-      });
+      Object.keys(counties).forEach(function (slug) { var im = new Image(); im.src = counties[slug].emblem; });
     }
-    function idle(fn) {
-      if (window.requestIdleCallback) { window.requestIdleCallback(fn, { timeout: 4000 }); } else { setTimeout(fn, 1500); }
-    }
+    function idle(fn) { if (window.requestIdleCallback) { window.requestIdleCallback(fn, { timeout: 4000 }); } else { setTimeout(fn, 1500); } }
+    function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 
     function setLift(slug) {
       if (!lift || !liftClip) { return; }
@@ -76,16 +60,39 @@
       lift.classList.add('is-on');
       lift.classList.toggle('is-pinned', pinned === slug);
     }
+    function paintMap() {
+      var shown = hovered || pinned;
+      markers.forEach(function (m) {
+        var s = m.getAttribute('data-county');
+        m.classList.toggle('is-pinned', s === pinned);
+        m.classList.toggle('is-hover', s === hovered && s !== pinned);
+      });
+      paths.forEach(function (p) { p.classList.toggle('is-pinned', p.getAttribute('data-county') === pinned); });
+      setLift(shown);
+      showTip(shown);
+    }
+    // name label above the county's marker
+    function showTip(slug) {
+      if (!tip) { return; }
+      var m = slug && byCounty(markers, slug);
+      if (!m) { tip.classList.remove('is-visible'); return; }
+      var r = m.getBoundingClientRect(), w = mapWrap.getBoundingClientRect();
+      tip.textContent = counties[slug] ? counties[slug].title : slug;
+      tip.style.left = (r.left + r.width / 2 - w.left) + 'px';
+      tip.style.top = (r.top - w.top) + 'px';
+      tip.classList.add('is-visible');
+    }
 
     /* Wrap free-form page content into searchable sections, one per heading */
     function autoSection(container) {
       if (container.querySelector('.ed-contest')) { return; }
       var kids = Array.prototype.slice.call(container.childNodes);
       var headings = kids.filter(function (n) { return n.nodeType === 1 && /^H[1-4]$/.test(n.tagName); });
-      if (headings.length < 2) { return; }
+      if (!headings.length) { return; }
       var level = headings.map(function (h) { return +h.tagName[1]; }).sort()[0];
       var frag = document.createDocumentFragment(), section = null;
       kids.forEach(function (n) {
+        if (n.nodeType === 3 && !n.textContent.trim()) { return; }
         if (n.nodeType === 1 && n.tagName === 'H' + level) {
           section = document.createElement('div'); section.className = 'ed-contest ed-auto-section'; frag.appendChild(section);
         }
@@ -99,18 +106,12 @@
       if (cache[slug] !== undefined) { return Promise.resolve(cache[slug]); }
       if (pending[slug]) { return pending[slug]; }
       var county = counties[slug] || {};
-
-      // 1) inline <template data-ballot="slug"> (used by the static demo / small ballots)
       var tpl = root.querySelector('template[data-ballot="' + slug + '"]');
       if (tpl) { cache[slug] = tpl.innerHTML; return Promise.resolve(cache[slug]); }
-
-      // 2) iframe embed of an existing page / PDF
       if (county.type === 'iframe' && county.src) {
-        cache[slug] = '<iframe class="ed-frame" loading="lazy" title="' + escapeHtml(county.title) + ' ballot" src="' + escapeAttr(county.src) + '"></iframe>';
+        cache[slug] = '<iframe class="ed-frame" loading="lazy" title="' + escapeHtml(county.title) + ' ballot" src="' + escapeHtml(county.src) + '"></iframe>';
         return Promise.resolve(cache[slug]);
       }
-
-      // 3) fetch an HTML fragment or a JSON {html:"..."} response (WordPress REST route)
       if (county.src) {
         pending[slug] = fetch(county.src, { credentials: 'same-origin' })
           .then(function (r) {
@@ -122,7 +123,6 @@
           .catch(function (err) { delete pending[slug]; throw err; });
         return pending[slug];
       }
-
       cache[slug] = '<p class="ed-empty">Ballot preview coming soon.</p>';
       return Promise.resolve(cache[slug]);
     }
@@ -133,154 +133,85 @@
       title.textContent = county.title;
       if (pageLink) { pageLink.hidden = !county.page; if (county.page) { pageLink.href = county.page; } }
       setImg(headImg, county);
-      setImg(floatImg, county);
       body.innerHTML = '<p class="ed-loading">Loading ballot…</p>';
-      body.scrollTop = 0;
+      if (scroller) { scroller.scrollTop = 0; }
       if (search) { search.value = ''; }
-
       loadBallot(slug).then(function (html) {
-        if (current !== slug) { return; }
+        if (pinned !== slug) { return; }
         body.innerHTML = html;
         autoSection(body);
-        var searchable = body.querySelectorAll('.ed-contest').length > 0;
-        if (searchWrap) { searchWrap.style.display = searchable ? '' : 'none'; }
+        if (searchWrap) { searchWrap.style.display = body.querySelector('.ed-contest') ? '' : 'none'; }
       }).catch(function () {
-        if (current !== slug) { return; }
+        if (pinned !== slug) { return; }
         body.innerHTML = '<p class="ed-error">Sorry, this ballot could not be loaded right now.</p>';
       });
       if (status) { status.textContent = county.title + ' ballot shown.'; }
     }
 
     /* ---------- state ---------- */
-    var lockUntil = 0; // while the layout is sliding open, ignore counties passing under the cursor
-    function show(slug) {
-      cancelClose();
+    function open(slug) {
       if (!counties[slug]) { return; }
-      if (!root.classList.contains('is-active')) { lockUntil = Date.now() + OPEN_LOCK; }
-      if (slug !== current) {
-        current = slug;
-        renderBallot(slug);
-      }
-      paths.forEach(function (p) { p.classList.toggle('is-hover', p.getAttribute('data-county') === slug); });
-      setLift(slug);
-      root.classList.add('is-active');
-    }
-    function hide() {
-      current = null;
-      paths.forEach(function (p) { p.classList.remove('is-hover'); });
-      setLift(null);
-      root.classList.remove('is-active');
-      if (status) { status.textContent = 'Ballot closed.'; }
-    }
-    function pin(slug) {
       pinned = slug;
-      paths.forEach(function (p) { p.classList.toggle('is-pinned', p.getAttribute('data-county') === slug); });
-      root.classList.add('is-pinned');
-      show(slug);
-      setLift(slug);
-      // On small screens bring the ballot into view under the map
+      root.classList.add('is-active');
+      renderBallot(slug);
+      paintMap();
       if (window.innerWidth <= 900 && ballot.scrollIntoView) {
         setTimeout(function () { ballot.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
       }
     }
-    function unpin() {
+    function close() {
       pinned = null;
-      paths.forEach(function (p) { p.classList.remove('is-pinned'); });
-      root.classList.remove('is-pinned');
-      hide();
+      root.classList.remove('is-active');
+      paintMap();
+      if (status) { status.textContent = 'Ballot closed.'; }
     }
-    function scheduleClose() {
-      cancelClose();
-      closeTimer = setTimeout(function () {
-        if (pinned) { show(pinned); } else { hide(); }
-      }, HOVER_CLOSE_DELAY);
-    }
-    function cancelClose() { if (closeTimer) { clearTimeout(closeTimer); closeTimer = null; } }
+    function toggle(slug) { if (pinned === slug) { close(); } else { open(slug); } }
 
-    /* ---------- events: map ---------- */
+    /* ---------- events ---------- */
     paths.forEach(function (p) {
       var slug = p.getAttribute('data-county');
-
       p.addEventListener('pointerenter', function (ev) {
         if (ev.pointerType && ev.pointerType !== 'mouse') { return; }
-        if (!supportsHover) { return; }
-        if (Date.now() < lockUntil && current && slug !== current) { return; }
         preloadEmblems();
-        show(slug);
-        if (tip) { tip.textContent = (counties[slug] || {}).title || slug; tip.classList.add('is-visible'); }
+        hovered = slug; paintMap();
       });
-      p.addEventListener('pointermove', function (ev) {
-        if (!tip || !tip.classList.contains('is-visible')) { return; }
-        var r = mapWrap.getBoundingClientRect();
-        tip.style.left = (ev.clientX - r.left) + 'px';
-        tip.style.top = (ev.clientY - r.top) + 'px';
-      });
-      p.addEventListener('pointerleave', function () { if (tip) { tip.classList.remove('is-visible'); } });
-
-      p.addEventListener('click', function (ev) {
-        ev.preventDefault();
-        if (pinned === slug) { unpin(); } else { pin(slug); }
-      });
-      p.addEventListener('keydown', function (ev) {
-        if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); if (pinned === slug) { unpin(); } else { pin(slug); } }
-      });
-      p.addEventListener('focus', function () { show(slug); });
-    });
-
-    // The preview stays open while the pointer is anywhere over the dashboard, so the
-    // user can travel from the map to the ballot and scroll it. Leaving the whole stage
-    // closes an unpinned preview (or snaps back to the pinned county).
-    // Note: closing only on stage-leave also avoids a flicker loop, because the map slides
-    // ~200px when the ballot opens and would otherwise move out from under the cursor.
-    mapWrap.addEventListener('pointerleave', function (ev) {
-      if (ev.pointerType && ev.pointerType !== 'mouse') { return; }
-      if (pinned && current !== pinned) { scheduleClose(); } // revert the peek to the pinned county
-    });
-    stage.addEventListener('pointerenter', function () { cancelClose(); });
-    stage.addEventListener('pointerleave', function (ev) {
-      if (ev.pointerType && ev.pointerType !== 'mouse') { return; }
-      scheduleClose();
+      p.addEventListener('pointerleave', function () { if (hovered === slug) { hovered = null; paintMap(); } });
+      p.addEventListener('click', function (ev) { ev.preventDefault(); toggle(slug); });
+      p.addEventListener('keydown', function (ev) { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(slug); } });
+      p.addEventListener('focus', function () { hovered = slug; paintMap(); });
+      p.addEventListener('blur', function () { if (hovered === slug) { hovered = null; paintMap(); } });
     });
     mapWrap.addEventListener('pointerenter', preloadEmblems, { once: true });
-    root.addEventListener('focusout', function () {
-      setTimeout(function () { if (!root.contains(document.activeElement) && !pinned) { hide(); } }, 0);
-    });
+    window.addEventListener('resize', function () { showTip(hovered || pinned); });
 
-    if (closeBtn) { closeBtn.addEventListener('click', unpin); }
-    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && (pinned || current)) { unpin(); } });
+    if (closeBtn) { closeBtn.addEventListener('click', close); }
+    document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && pinned) { close(); } });
 
     /* ---------- search / filter ---------- */
     if (search) {
       search.addEventListener('input', function () {
-        var q = search.value.trim().toLowerCase();
-        var contests = body.querySelectorAll('.ed-contest');
-        var anyVisible = false;
-        Array.prototype.forEach.call(contests, function (c) {
+        var q = search.value.trim().toLowerCase(), any = false;
+        Array.prototype.forEach.call(body.querySelectorAll('.ed-contest'), function (c) {
           var hit = !q || c.textContent.toLowerCase().indexOf(q) !== -1;
-          c.classList.toggle('is-filtered', !hit);
-          if (hit) { anyVisible = true; }
+          c.classList.toggle('is-filtered', !hit); if (hit) { any = true; }
         });
         Array.prototype.forEach.call(body.querySelectorAll('.ed-group'), function (g) {
-          var visible = g.querySelectorAll('.ed-contest:not(.is-filtered)').length > 0;
-          g.classList.toggle('is-filtered', !visible);
+          g.classList.toggle('is-filtered', !g.querySelector('.ed-contest:not(.is-filtered)'));
         });
         var empty = body.querySelector('.ed-no-results');
-        if (!anyVisible && q) {
+        if (!any && q) {
           if (!empty) { empty = document.createElement('p'); empty.className = 'ed-empty ed-no-results'; body.appendChild(empty); }
           empty.textContent = 'No matches for “' + search.value.trim() + '”.';
         } else if (empty) { empty.parentNode.removeChild(empty); }
       });
     }
 
-    /* ---------- deep link: #county=mendocino or ?county=mendocino ---------- */
+    /* deep link: ?county=mendocino or #county=mendocino */
     var m = (location.hash + location.search).match(/county=([a-z0-9-]+)/i);
-    if (m && counties[m[1]]) { pin(m[1]); }
+    if (m && counties[m[1]]) { open(m[1]); }
 
     idle(preloadEmblems);
   }
-
-  function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-  function escapeAttr(s) { return escapeHtml(s); }
 
   function boot() { Array.prototype.forEach.call(document.querySelectorAll('.ed-dashboard'), init); }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }

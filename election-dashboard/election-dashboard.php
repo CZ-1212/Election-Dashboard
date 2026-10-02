@@ -26,10 +26,20 @@ function ed_get_counties() {
  * Register assets. They are only enqueued on pages that render the shortcode.
  */
 function ed_register_assets() {
-	wp_register_style( 'election-dashboard', ED_URL . 'assets/css/election-dashboard.css', array(), ED_VERSION );
+	// Fira Sans + Merriweather, as in the design. Remove this line if the theme already loads them.
+	wp_register_style( 'election-dashboard-fonts', 'https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Merriweather:wght@700&display=swap', array(), null );
+	wp_register_style( 'election-dashboard', ED_URL . 'assets/css/election-dashboard.css', array( 'election-dashboard-fonts' ), ED_VERSION );
 	wp_register_script( 'election-dashboard', ED_URL . 'assets/js/election-dashboard.js', array(), ED_VERSION, true );
 }
 add_action( 'wp_enqueue_scripts', 'ed_register_assets' );
+
+/**
+ * Returns the text, links and key dates (includes/settings.json), filterable via `election_dashboard_settings`.
+ */
+function ed_get_settings() {
+	$settings = json_decode( file_get_contents( ED_DIR . 'includes/settings.json' ), true );
+	return apply_filters( 'election_dashboard_settings', is_array( $settings ) ? $settings : array() );
+}
 
 /**
  * Build the JSON config the front-end script reads.
@@ -61,27 +71,29 @@ function ed_build_config( $counties ) {
 
 /**
  * [election_dashboard] shortcode.
- * Attributes: ballot_width (px), map_width (px), brand (URL of your own logo image to replace the built-in SVG).
+ * Attributes: height (px), map_width (px), nav_width (px). Text, links and dates live in includes/settings.json.
  */
 function ed_shortcode( $atts ) {
 	$atts = shortcode_atts( array(
-		'ballot_width' => '',
-		'map_width'    => '',
-		'brand'        => '',
+		'height'    => '',   // desktop frame height in px (default 800)
+		'map_width' => '',   // map column width in px (default 340)
+		'nav_width' => '',   // side-button column width in px (default 208)
 	), $atts, 'election_dashboard' );
 
 	wp_enqueue_style( 'election-dashboard' );
 	wp_enqueue_script( 'election-dashboard' );
 
 	$counties = ed_get_counties();
+	$settings = ed_get_settings();
 	$config   = ed_build_config( $counties );
 	$map_art  = ED_URL . 'assets/img/map-art.webp';
 	$map_svg  = str_replace( '{{MAP_ART}}', esc_url( $map_art ), file_get_contents( ED_DIR . 'assets/img/county-map.svg' ) );
-	$brand    = $atts['brand'] ? esc_url( $atts['brand'] ) : ED_URL . 'assets/img/brand-2026.webp';
+	$icon_url = ED_URL . 'assets/img/';
 
 	$style = '';
-	if ( $atts['ballot_width'] ) { $style .= '--ed-ballot-width:' . intval( $atts['ballot_width'] ) . 'px;'; }
-	if ( $atts['map_width'] )    { $style .= '--ed-map-width:' . intval( $atts['map_width'] ) . 'px;'; }
+	if ( $atts['height'] )    { $style .= '--ed-height:' . intval( $atts['height'] ) . 'px;'; }
+	if ( $atts['map_width'] ) { $style .= '--ed-map-col:' . intval( $atts['map_width'] ) . 'px;'; }
+	if ( $atts['nav_width'] ) { $style .= '--ed-nav-col:' . intval( $atts['nav_width'] ) . 'px;'; }
 
 	ob_start();
 	include ED_DIR . 'templates/dashboard.php';

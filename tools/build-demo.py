@@ -36,30 +36,51 @@ for slug, name, title, emblem, ballot in rows:
 
 map_art = asset('img/map-art.webp', 'image/webp')
 map_svg = open(os.path.join(P, 'assets/img/county-map.svg')).read().replace('{{MAP_ART}}', map_art)
+settings = json.load(open(os.path.join(P, 'includes/settings.json')))
+
+def esc(s):
+    return str(s).replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('"', '&quot;')
+
+# Render the PHP template by hand: it is small and the loops are simple.
+icon = lambda rel: asset('img/' + rel, 'image/svg+xml')
+links = ''.join('<a class="ed-btn%s" href="%s">%s</a>\n' % (' ed-btn-' + l['style'] if l.get('style') else '', esc(l['url']), esc(l['label'])) for l in settings['header_links'])
+nav = ''.join('<a class="ed-nav-btn" href="%s"><img src="%s" alt="" width="180" height="120" decoding="async"><span>%s</span></a>\n' % (esc(n['url']), icon('nav/' + n['icon']), esc(n['label'])) for n in settings['side_nav'])
+dates = ''.join('<li class="ed-date%s"><div class="ed-date-badge"><span class="ed-date-month">%s</span><span class="ed-date-day">%s</span></div><div class="ed-date-text">%s</div></li>\n' % (' is-highlight' if d.get('highlight') else '', esc(d['month']), esc(d['day']), d['text']) for d in settings['key_dates'])
+
 tpl = open(os.path.join(P, 'templates/dashboard.php')).read().split('?>', 1)[1]
 tpl = tpl.replace("<?php echo $style ? ' style=\"' . esc_attr( $style ) . '\"' : ''; ?>", '')
 tpl = tpl.replace('<?php echo wp_json_encode( $config ); ?>', json.dumps(config))
 tpl = tpl.replace('<?php echo esc_url( $map_art ); ?>', map_art)
-tpl = tpl.replace('<?php echo $map_svg; // traced hit regions + lift layer, shipped with the plugin ?>', map_svg)
-tpl = tpl.replace('<?php echo esc_url( $brand ); ?>', asset('img/brand-2026.webp', 'image/webp'))
+tpl = tpl.replace('<?php echo $map_svg; // traced hit regions, markers and lift layer ?>', map_svg)
+tpl = tpl.replace("<?php echo esc_url( $icon_url . 'ballot-box.svg' ); ?>", icon('ballot-box.svg'))
+tpl = tpl.replace("<?php echo esc_html( $s['title']['year'] ); ?>", esc(settings['title']['year']))
+tpl = tpl.replace("<?php echo esc_html( $s['title']['text'] ); ?>", esc(settings['title']['text']))
+for key in ('map_title', 'map_subtitle', 'prompt_title', 'prompt_text', 'key_dates_title'):
+    tpl = tpl.replace("<?php echo esc_html( $s['%s'] ); ?>" % key, esc(settings[key]))
+tpl = re.sub(r"<\?php foreach \( \$s\['header_links'\] as \$l \) : \?>.*?<\?php endforeach; \?>", links, tpl, flags=re.S)
+tpl = re.sub(r"<\?php foreach \( \$s\['side_nav'\] as \$n \) : \?>.*?<\?php endforeach; \?>", nav, tpl, flags=re.S)
+tpl = re.sub(r"<\?php foreach \( \$s\['key_dates'\] as \$d \) : \?>.*?<\?php endforeach; \?>", dates, tpl, flags=re.S)
 tpl = re.sub(r"<\?php esc_(?:html|attr)_e\( '([^']+)', 'election-dashboard' \); \?>", r'\1', tpl)
 tpl = tpl.replace('<p class="ed-sr" aria-live="polite"></p>', '<p class="ed-sr" aria-live="polite"></p>\n\t' + '\n\t'.join(templates))
 assert '<?php' not in tpl, 'unreplaced PHP left in template'
 
+FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">'
 css = open(os.path.join(P, 'assets/css/election-dashboard.css')).read()
 js = open(os.path.join(P, 'assets/js/election-dashboard.js')).read()
 if INLINE:
     html = '''<title>2026 Election Dashboard</title>
+''' + FONTS + '''
 <style>
 :root { --page-bg: #ffffff; --page-fg: #1b1f2a; --page-muted: #5b6373; --page-rule: #d9dfeb; color-scheme: light; }
 body { background: var(--page-bg); color: var(--page-fg); margin: 0; padding-inline: 16px; padding-block: 8px 32px; font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif; }
-.pv-note { max-width: 1400px; margin: 0 auto 4px; font-size: 12px; color: var(--page-muted); text-align: center; }
+.pv-note { max-width: 1400px; margin: 0 auto 8px; font-size: 12px; color: var(--page-muted); text-align: center; }
 .pv-note b { color: var(--page-fg); }
+.ed-dashboard { border: 1px solid #e3e8f2; }
 .pv-foot { max-width: 720px; margin: 8px auto 0; padding-top: 12px; border-top: 1px solid var(--page-rule); font-size: 12px; line-height: 1.5; color: var(--page-muted); text-align: center; }
 %s
 .ed-dashboard { padding-inline: 0; }
 </style>
-<p class="pv-note"><b>Preview build.</b> Hover a county (or tap on a phone), click to keep the ballot open.</p>
+<p class="pv-note"><b>Preview build.</b> Click a county to open its ballot. The three right-hand icons and the ballot box are stand-ins until the final artwork arrives.</p>
 %s
 <p class="pv-foot">On the live site each ballot window shows that county&rsquo;s page from localnewsmatters.org. This preview cannot reach the site, so it shows sample text instead; the &ldquo;Full page&rdquo; button links to the real page.</p>
 <script>%s</script>
@@ -71,6 +92,7 @@ else:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>2026 General Election Dashboard - demo</title>
+''' + FONTS + '''
 <link rel="stylesheet" href="%s/css/election-dashboard.css">
 <style>body{margin:0;background:#fff;}</style>
 </head>

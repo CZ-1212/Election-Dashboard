@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>2026 General Election Dashboard - demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../election-dashboard/assets/css/election-dashboard.css">
 <style>body{margin:0;background:#fff;}</style>
 </head>
@@ -11,10 +12,30 @@
 
 <div class="ed-dashboard" id="election-dashboard">
 	<script type="application/json" class="ed-config">{"counties": {"mendocino": {"name": "Mendocino", "title": "Mendocino County", "emblem": "../election-dashboard/assets/img/emblems/mendocino.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/mendocino.png", "page": "https://localnewsmatters.org/mendocino-county-november-3-2026/"}, "sonoma": {"name": "Sonoma", "title": "Sonoma County", "emblem": "../election-dashboard/assets/img/emblems/sonoma.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/sonoma.png", "page": "https://localnewsmatters.org/sonoma-county-november-3-2026/"}, "napa": {"name": "Napa", "title": "Napa County", "emblem": "../election-dashboard/assets/img/emblems/napa.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/napa.png", "page": "https://localnewsmatters.org/napa-county-november-3-2026/"}, "solano": {"name": "Solano", "title": "Solano County", "emblem": "../election-dashboard/assets/img/emblems/solano.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/solano.png", "page": "https://localnewsmatters.org/solano-county-november-3-2026/"}, "marin": {"name": "Marin", "title": "Marin County", "emblem": "../election-dashboard/assets/img/emblems/marin.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/marin.png", "page": "https://localnewsmatters.org/marin-county-november-3-2026-2/"}, "contra-costa": {"name": "Contra Costa", "title": "Contra Costa County", "emblem": "../election-dashboard/assets/img/emblems/contra-costa.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/contra-costa.png", "page": "https://localnewsmatters.org/contra-costa-county-november-3-2026/"}, "san-francisco": {"name": "San Francisco", "title": "City and County of San Francisco", "emblem": "../election-dashboard/assets/img/emblems/san-francisco.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/san-francisco.png", "page": "https://localnewsmatters.org/san-francisco-november-3-2026/"}, "alameda": {"name": "Alameda", "title": "Alameda County", "emblem": "../election-dashboard/assets/img/emblems/alameda.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/alameda.png", "page": "https://localnewsmatters.org/alameda-county-november-3-2026/"}, "san-mateo": {"name": "San Mateo", "title": "San Mateo County", "emblem": "../election-dashboard/assets/img/emblems/san-mateo.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/san-mateo.png", "page": "https://localnewsmatters.org/san-mateo-november-3-2026/"}, "san-joaquin": {"name": "San Joaquin", "title": "San Joaquin County", "emblem": "../election-dashboard/assets/img/emblems/san-joaquin.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/san-joaquin.png", "page": "https://localnewsmatters.org/san-joaquin-november-3-2026-2/"}, "santa-clara": {"name": "Santa Clara", "title": "Santa Clara County", "emblem": "../election-dashboard/assets/img/emblems/santa-clara.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/santa-clara.png", "page": "https://localnewsmatters.org/santa-clara-november-3-2026/"}, "santa-cruz": {"name": "Santa Cruz", "title": "Santa Cruz County", "emblem": "../election-dashboard/assets/img/emblems/santa-cruz.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/santa-cruz.png", "page": "https://localnewsmatters.org/santa-cruz-november-3-2026/"}, "monterey": {"name": "Monterey", "title": "Monterey County", "emblem": "../election-dashboard/assets/img/emblems/monterey.webp", "emblemFallback": "../election-dashboard/assets/img/emblems/monterey.png", "page": "https://localnewsmatters.org/monterey-county-november-3-2026/"}}}</script>
-	<div class="ed-stage">
-		<div class="ed-map-wrap">
-			<img class="ed-map-art" src="../election-dashboard/assets/img/map-art.webp" width="900" height="1326" alt="" decoding="async">
-			<svg class="ed-map-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1250 1842" role="group" aria-label="Map of the counties we cover">
+
+	<header class="ed-top">
+		<div class="ed-title">
+			<h2 class="ed-title-text"><span class="ed-title-year">2026</span> General Election</h2>
+			<img class="ed-title-icon" src="../election-dashboard/assets/img/ballot-box.svg" alt="" width="42" height="42">
+		</div>
+		<nav class="ed-top-links" aria-label="Election resources">
+			<a class="ed-btn" href="https://localnewsmatters.org/civic-engagement-hub/">Local coverage</a>
+<a class="ed-btn" href="https://www.sos.ca.gov/elections/polling-place">Find your polling place</a>
+<a class="ed-btn" href="https://registertovote.ca.gov/">Register to vote</a>
+<a class="ed-btn ed-btn-green" href="#">Ask a chatbot ballot questions</a>
+
+		</nav>
+	</header>
+
+	<div class="ed-main">
+		<section class="ed-map-col">
+			<div class="ed-map-head">
+				<div class="ed-map-title">Bay Area counties</div>
+				<div class="ed-map-sub">Click a county to see its ballot</div>
+			</div>
+			<div class="ed-map-wrap">
+				<img class="ed-map-art" src="../election-dashboard/assets/img/map-art.webp" width="900" height="1326" alt="" decoding="async">
+				<svg class="ed-map-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1250 1842" role="group" aria-label="Map of the counties we cover">
 <defs>
 <clipPath id="ed-clip-mendocino" clipPathUnits="userSpaceOnUse"><use href="#ed-p-mendocino"/></clipPath>
 <clipPath id="ed-clip-sonoma" clipPathUnits="userSpaceOnUse"><use href="#ed-p-sonoma"/></clipPath>
@@ -45,30 +66,67 @@
 <path id="ed-p-santa-cruz" class="ed-county" data-county="santa-cruz" d="M538,1266 539,1274 569,1303 571,1316 580,1328 595,1330 612,1317 624,1317 639,1337 648,1342 659,1342 656,1353 660,1358 667,1360 675,1356 685,1368 696,1367 702,1358 722,1361 737,1353 746,1339 746,1332 731,1318 720,1319 718,1312 706,1302 695,1302 690,1296 662,1284 651,1292 628,1272 627,1265 617,1259 619,1249 615,1241 619,1230 604,1219 592,1220 588,1229 576,1239 566,1233 558,1235 554,1240 554,1250Z" tabindex="0" role="button" aria-label="Santa Cruz County"><title>Santa Cruz County</title></path>
 <path id="ed-p-monterey" class="ed-county" data-county="monterey" d="M704,1403 699,1419 707,1429 707,1439 690,1458 690,1468 697,1482 690,1489 665,1495 657,1511 658,1521 672,1526 667,1532 668,1542 682,1555 679,1560 681,1579 675,1585 673,1601 696,1626 724,1645 775,1703 779,1730 805,1752 835,1791 841,1793 850,1789 856,1800 878,1814 916,1806 931,1816 945,1814 946,1822 952,1828 968,1826 1001,1831 1011,1826 1029,1833 1146,1836 1159,1827 1176,1837 1204,1837 1215,1831 1218,1822 1233,1814 1231,1801 1205,1773 1199,1771 1184,1779 1175,1775 1166,1779 1161,1770 1151,1768 1131,1748 1131,1739 1119,1735 1108,1721 1115,1714 1114,1706 1095,1691 1081,1690 1083,1680 1071,1667 1074,1657 1062,1647 1065,1637 1055,1626 1045,1625 1017,1639 1002,1629 985,1633 979,1639 958,1614 963,1610 964,1602 955,1588 947,1584 910,1545 893,1539 887,1541 881,1551 875,1546 883,1538 882,1530 875,1524 864,1525 852,1514 853,1503 832,1481 834,1471 826,1462 806,1453 795,1457 791,1452 793,1443 778,1425 777,1417 763,1407 768,1401 768,1394 763,1388 753,1386 735,1394 725,1393 719,1399 709,1399Z" tabindex="0" role="button" aria-label="Monterey County"><title>Monterey County</title></path>
 <path id="ed-p-san-francisco" class="ed-county" data-county="san-francisco" d="M494,1000 468,1010 460,1021 456,1037 458,1050 466,1064 475,1071 494,1076 520,1066 528,1055 532,1039 530,1026 522,1012 513,1005Z" tabindex="0" role="button" aria-label="City and County of San Francisco"><title>City and County of San Francisco</title></path>
+</g>
+<g class="ed-markers" aria-hidden="true">
+<circle class="ed-marker" data-county="mendocino" cx="169" cy="257" r="22"/>
+<circle class="ed-marker" data-county="sonoma" cx="337" cy="678" r="22"/>
+<circle class="ed-marker" data-county="napa" cx="567" cy="681" r="22"/>
+<circle class="ed-marker" data-county="solano" cx="693" cy="770" r="22"/>
+<circle class="ed-marker" data-county="marin" cx="381" cy="876" r="22"/>
+<circle class="ed-marker" data-county="contra-costa" cx="663" cy="961" r="22"/>
+<circle class="ed-marker" data-county="san-joaquin" cx="909" cy="935" r="22"/>
+<circle class="ed-marker" data-county="alameda" cx="709" cy="1071" r="22"/>
+<circle class="ed-marker" data-county="san-mateo" cx="523" cy="1132" r="22"/>
+<circle class="ed-marker" data-county="santa-clara" cx="747" cy="1221" r="22"/>
+<circle class="ed-marker" data-county="santa-cruz" cx="631" cy="1298" r="22"/>
+<circle class="ed-marker" data-county="monterey" cx="897" cy="1657" r="22"/>
+<circle class="ed-marker" data-county="san-francisco" cx="485" cy="1038" r="22"/>
 </g></svg>
-			<div class="ed-map-tip" aria-hidden="true"></div>
-		</div>
-		<div class="ed-side">
-			<div class="ed-hint"><span class="ed-hint-mouse">Hover over your county to see your ballot</span><span class="ed-hint-touch">Tap your county to see your ballot</span></div>
-			<div class="ed-emblem-float" aria-hidden="true">
-				<svg viewBox="0 0 44 44" fill="none" stroke="#8b3a62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 36 C 8 20, 20 12, 36 12"/><path d="M28 6 l8 6 -6 8"/></svg>
-				<img alt="" width="96" height="96" decoding="async">
+				<div class="ed-map-tip" aria-hidden="true"></div>
 			</div>
-		</div>
-		<div class="ed-ballot">
-			<div class="ed-ballot-inner">
+		</section>
+
+		<section class="ed-center">
+			<div class="ed-prompt">
+				<div class="ed-prompt-arrow" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M40 24H10"/><path d="M20 14 10 24l10 10"/></svg></div>
+				<div class="ed-prompt-title">Click a county to view your ballot</div>
+				<div class="ed-prompt-text">Choose any of the 13 counties on the map. Its measures, contests and candidates will appear here.</div>
+			</div>
+			<div class="ed-ballot">
 				<div class="ed-ballot-head">
-					<img alt="" width="44" height="44" decoding="async">
-					<h2 class="ed-ballot-title"></h2>
+					<img alt="" width="54" height="54" decoding="async">
+					<h3 class="ed-ballot-title"></h3>
 					<a class="ed-open-page" href="#" target="_blank" rel="noopener" hidden>Full page &#8599;</a>
 					<button type="button" class="ed-close" aria-label="Close ballot">&times;</button>
 				</div>
-				<div class="ed-search"><input type="search" placeholder="Search for measures, candidates, contests…" aria-label="Search this ballot"></div>
-				<div class="ed-ballot-body"></div>
+				<div class="ed-ballot-scroll">
+					<div class="ed-search"><input type="search" id="ed-search-input" placeholder="Search for measures, candidates, contests…" aria-label="Search this ballot"></div>
+					<div class="ed-ballot-body"></div>
+				</div>
 			</div>
-		</div>
-		<div class="ed-brand"><img src="../election-dashboard/assets/img/brand-2026.webp" alt="2026 General Election" width="720" height="461" decoding="async"></div>
+		</section>
+
+		<nav class="ed-side-nav" aria-label="Other ballots">
+			<a class="ed-nav-btn" href="#"><img src="../election-dashboard/assets/img/nav/icon-state.svg" alt="" width="180" height="120" decoding="async"><span>State</span></a>
+<a class="ed-nav-btn" href="#"><img src="../election-dashboard/assets/img/nav/icon-senate-assembly.svg" alt="" width="180" height="120" decoding="async"><span>Senate &amp; Assembly</span></a>
+<a class="ed-nav-btn" href="#"><img src="../election-dashboard/assets/img/nav/icon-counties.svg" alt="" width="180" height="120" decoding="async"><span>Counties</span></a>
+
+		</nav>
 	</div>
+
+	<footer class="ed-dates">
+		<div class="ed-dates-title">Key election dates</div>
+		<ol class="ed-timeline">
+			<li class="ed-date"><div class="ed-date-badge"><span class="ed-date-month">OCT</span><span class="ed-date-day">5</span></div><div class="ed-date-text">Vote-by-mail ballots mailed; ballot drop boxes open</div></li>
+<li class="ed-date"><div class="ed-date-badge"><span class="ed-date-month">OCT</span><span class="ed-date-day">19</span></div><div class="ed-date-text">Voter registration deadline</div></li>
+<li class="ed-date"><div class="ed-date-badge"><span class="ed-date-month">OCT</span><span class="ed-date-day">24</span></div><div class="ed-date-text">Early vote centers begin opening</div></li>
+<li class="ed-date"><div class="ed-date-badge"><span class="ed-date-month">OCT</span><span class="ed-date-day">31</span></div><div class="ed-date-text">All vote centers open</div></li>
+<li class="ed-date is-highlight"><div class="ed-date-badge"><span class="ed-date-month">NOV</span><span class="ed-date-day">3</span></div><div class="ed-date-text"><b>Election Day</b>, 7 a.m.–8 p.m.</div></li>
+<li class="ed-date"><div class="ed-date-badge"><span class="ed-date-month">NOV</span><span class="ed-date-day">10</span></div><div class="ed-date-text">Deadline for eligible mailed ballots to arrive</div></li>
+
+		</ol>
+	</footer>
+
 	<p class="ed-sr" aria-live="polite"></p>
 	<template data-ballot="mendocino"><div class="ed-group">
   <h3>City of Fort Bragg</h3>

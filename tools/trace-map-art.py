@@ -79,6 +79,14 @@ svg.append(f'<g class="ed-lift" aria-hidden="true"><g class="ed-lift-clip"><imag
 svg.append('<g class="ed-counties">')
 for s in order:
     svg.append(f'<path id="ed-p-{s}" class="ed-county" data-county="{s}" d="{paths[s]}" tabindex="0" role="button" aria-label="{title(s)}"><title>{title(s)}</title></path>')
+svg.append('</g>')
+# marker dots at each region's centre (pointer events pass through to the region below)
+svg.append('<g class="ed-markers" aria-hidden="true">')
+for s in order:
+    cx, cy = cent[regions[s]]
+    if s == 'san-francisco':
+        cx -= 10
+    svg.append(f'<circle class="ed-marker" data-county="{s}" cx="{cx:.0f}" cy="{cy:.0f}" r="22"/>')
 svg.append('</g></svg>')
 open(os.path.join(OUT_DIR, 'county-map.svg'), 'w').write('\n'.join(svg))
 
