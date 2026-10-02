@@ -66,7 +66,7 @@ tpl = re.sub(r"<\?php esc_(?:html|attr)_e\( '([^']+)', 'election-dashboard' \); 
 tpl = tpl.replace('<p class="ed-sr" aria-live="polite"></p>', '<p class="ed-sr" aria-live="polite"></p>\n\t' + '\n\t'.join(templates))
 assert '<?php' not in tpl, 'unreplaced PHP left in template'
 
-FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Merriweather:wght@700&display=swap" rel="stylesheet">'
+FONTS = '<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">'
 css = open(os.path.join(P, 'assets/css/election-dashboard.css')).read()
 js = open(os.path.join(P, 'assets/js/election-dashboard.js')).read()
 if INLINE:

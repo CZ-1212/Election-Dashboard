@@ -27,7 +27,7 @@ function ed_get_counties() {
  */
 function ed_register_assets() {
 	// Fira Sans + Merriweather, as in the design. Remove this line if the theme already loads them.
-	wp_register_style( 'election-dashboard-fonts', 'https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Merriweather:wght@700&display=swap', array(), null );
+	wp_register_style( 'election-dashboard-fonts', 'https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;700&family=Merriweather:wght@700;900&display=swap', array(), null );
 	wp_register_style( 'election-dashboard', ED_URL . 'assets/css/election-dashboard.css', array( 'election-dashboard-fonts' ), ED_VERSION );
 	wp_register_script( 'election-dashboard', ED_URL . 'assets/js/election-dashboard.js', array(), ED_VERSION, true );
 }
