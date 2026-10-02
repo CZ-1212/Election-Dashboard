@@ -50,6 +50,7 @@ dates = ''.join('<li class="ed-date%s"><div class="ed-date-badge"><span class="e
 
 tpl = open(os.path.join(P, 'templates/dashboard.php')).read().split('?>', 1)[1]
 tpl = tpl.replace("<?php echo $style ? ' style=\"' . esc_attr( $style ) . '\"' : ''; ?>", '')
+tpl = tpl.replace("<?php echo '' !== $top_gap ? ' data-top-gap=\"' . intval( $top_gap ) . '\"' : ''; ?>", '')
 tpl = tpl.replace('<?php echo wp_json_encode( $config ); ?>', json.dumps(config))
 tpl = tpl.replace('<?php echo esc_url( $map_art ); ?>', map_art)
 tpl = tpl.replace('<?php echo $map_svg; // traced hit regions and markers ?>', map_svg)

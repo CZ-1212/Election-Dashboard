@@ -209,6 +209,42 @@
       });
     }
 
+    /* ---------- close the gap the theme leaves between the site header and the dashboard ----------
+       The wrapper carries data-top-gap (px wanted). We measure the real distance from the bottom of the
+       site header to the top of the dashboard and pull the dashboard up by the difference, but only when
+       nothing else (a title, an ad, an image) sits in that space. */
+    var wrap = root.parentNode && root.parentNode.classList && root.parentNode.classList.contains('ed-root') ? root.parentNode : null;
+    function closeTopGap() {
+      if (!wrap) { return; }
+      var want = parseInt(wrap.getAttribute('data-top-gap'), 10);
+      if (isNaN(want)) { return; }
+      var header = document.querySelector('#masthead, header.site-header, .site-header, header[role="banner"], body > header');
+      if (!header) { return; }
+      wrap.style.marginTop = wrap.getAttribute('data-base-margin') || '';
+      var hb = header.getBoundingClientRect().bottom, rt = wrap.getBoundingClientRect().top, gap = rt - hb;
+      if (gap <= want || gap > 400) { return; }
+      // anything visible between the header and the dashboard (a page title, an ad, an image)? then leave it alone
+      var all = document.body.getElementsByTagName('*'), FOLLOWING = 4;
+      for (var i = 0; i < all.length; i++) {
+        var el = all[i];
+        if (el === wrap || wrap.contains(el) || el.contains(wrap) || header.contains(el) || el.contains(header)) { continue; }
+        if (!(header.compareDocumentPosition(el) & FOLLOWING) || !(el.compareDocumentPosition(wrap) & FOLLOWING)) { continue; }
+        var tag = el.tagName;
+        if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'NOSCRIPT' || tag === 'TEMPLATE') { continue; }
+        var hasText = false;
+        for (var n = 0; n < el.childNodes.length; n++) { if (el.childNodes[n].nodeType === 3 && el.childNodes[n].textContent.trim()) { hasText = true; break; } }
+        if ((hasText || /^(IMG|IFRAME|SVG|VIDEO|CANVAS|INPUT|BUTTON|SELECT)$/.test(tag)) && el.getBoundingClientRect().height > 0) { return; }
+      }
+      var base = parseFloat(getComputedStyle(wrap).marginTop) || 0;
+      wrap.style.marginTop = (base - (gap - want)) + 'px';
+    }
+    if (wrap) {
+      wrap.setAttribute('data-base-margin', wrap.style.marginTop || '');
+      closeTopGap();
+      window.addEventListener('load', closeTopGap);
+      window.addEventListener('resize', closeTopGap);
+    }
+
     /* deep link: ?county=mendocino or #county=mendocino */
     var m = (location.hash + location.search).match(/county=([a-z0-9-]+)/i);
     if (m && counties[m[1]]) { open(m[1]); }

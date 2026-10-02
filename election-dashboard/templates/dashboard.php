@@ -1,12 +1,12 @@
 <?php
 /**
  * Dashboard markup. Variables: $config (array), $settings (array), $map_svg (string), $map_art (URL),
- * $icon_url (base URL for assets/img), $style (string).
+ * $icon_url (base URL for assets/img), $style (string), $top_gap (int or '').
  */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 $s = $settings;
 ?>
-<div class="ed-root"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>><div class="ed-dashboard" id="election-dashboard">
+<div class="ed-root"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?><?php echo '' !== $top_gap ? ' data-top-gap="' . intval( $top_gap ) . '"' : ''; ?>><div class="ed-dashboard" id="election-dashboard">
 	<script type="application/json" class="ed-config"><?php echo wp_json_encode( $config ); ?></script>
 
 	<header class="ed-top">
