@@ -57,7 +57,7 @@ tpl = tpl.replace("<?php echo esc_url( $icon_url . 'ballot-box.png' ); ?>", icon
 tpl = tpl.replace("<?php echo intval( $map_dims['w'] ); ?>", str(map_dims['w'])).replace("<?php echo intval( $map_dims['h'] ); ?>", str(map_dims['h']))
 tpl = tpl.replace("<?php echo esc_html( $s['title']['year'] ); ?>", esc(settings['title']['year']))
 tpl = tpl.replace("<?php echo esc_html( $s['title']['text'] ); ?>", esc(settings['title']['text']))
-for key in ('map_title', 'map_subtitle', 'prompt_title', 'prompt_text', 'key_dates_title'):
+for key in ('map_title', 'map_subtitle', 'key_dates_title'):
     tpl = tpl.replace("<?php echo esc_html( $s['%s'] ); ?>" % key, esc(settings[key]))
 tpl = re.sub(r"<\?php foreach \( \$s\['header_links'\] as \$l \) :.*?<\?php endforeach; \?>", links, tpl, flags=re.S)
 tpl = re.sub(r"<\?php foreach \( \$s\['side_nav'\] as \$n \) : \?>.*?<\?php endforeach; \?>", nav, tpl, flags=re.S)

@@ -26,8 +26,6 @@
   ],
   "map_title": "Bay Area counties",
   "map_subtitle": "Click a county to see its ballot",
-  "prompt_title": "Click a county to view your ballot",
-  "prompt_text": "Choose any of the 13 counties on the map. Its measures, contests and candidates will appear here.",
   "side_nav": [
     {
       "label": "State",

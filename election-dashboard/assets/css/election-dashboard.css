@@ -67,20 +67,34 @@
 .ed-btn-green { background: var(--ed-green); border-color: var(--ed-green); color: #fff; padding: 0 16px; }
 .ed-btn-green:hover, .ed-btn-green:focus-visible { background: var(--ed-green-dark); border-color: var(--ed-green-dark); }
 
-/* ---------- Main grid ---------- */
+/* ---------- Main grid ----------
+   Idle: the map and the three buttons sit together in the middle (the centre column is 0 wide).
+   Active: the centre column opens up and the ballot fills it; map and buttons slide to the sides. */
 .ed-main {
+  --ed-gap: 24px;
+  --ed-center-w: 0px;
   flex: 1 1 auto; min-height: 0;
   display: grid;
-  grid-template-columns: var(--ed-map-col) minmax(0, 1fr) var(--ed-nav-col);
-  gap: 24px;
+  grid-template-columns: var(--ed-map-col) var(--ed-center-w) var(--ed-nav-col);
+  justify-content: center;
+  gap: var(--ed-gap);
   padding: 20px 28px;
+  transition: grid-template-columns .55s var(--ed-ease);
+}
+.ed-dashboard.is-active .ed-main {
+  --ed-center-w: calc(100% - var(--ed-map-col) - var(--ed-nav-col) - 2 * var(--ed-gap));
 }
 
 /* Map column */
 .ed-map-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
-.ed-map-head { margin-bottom: 8px; }
+.ed-map-head { margin-bottom: 10px; }
 .ed-map-title { font-family: var(--ed-serif); font-size: 16px; font-weight: 700; color: var(--ed-navy); }
-.ed-map-sub { font-size: 12px; color: var(--ed-muted); margin-top: 2px; }
+.ed-map-sub {
+  display: inline-block; margin-top: 4px;
+  font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ed-navy);
+  background: linear-gradient(transparent 15%, #fff09a 15%, #fff09a 90%, transparent 90%);   /* highlighter stroke */
+  padding: 0 4px;
+}
 .ed-map-wrap { position: relative; flex: 1 1 auto; min-height: 0; max-height: 100%; align-self: center; width: 100%; }  /* aspect-ratio is set inline from includes/map.json */
 .ed-map-art { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
 .ed-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -116,22 +130,8 @@
 }
 .ed-map-tip.is-visible { opacity: 1; }
 
-/* Center column: prompt (idle) or ballot (active) */
-.ed-center { position: relative; min-height: 0; min-width: 0; display: flex; flex-direction: column; }
-.ed-prompt {
-  flex: 1 1 auto;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-  gap: 10px; padding: 32px;
-  border: 1.5px dashed var(--ed-rule-soft);
-  background: repeating-linear-gradient(45deg, #fff 0 10px, #f6f9fd 10px 20px);
-  color: var(--ed-navy);
-  transition: opacity .3s;
-}
-.ed-prompt-arrow { width: 48px; height: 48px; color: var(--ed-blue); animation: ed-nudge 1.6s ease-in-out infinite; }
-.ed-prompt-arrow svg { width: 100%; height: 100%; }
-@keyframes ed-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
-.ed-prompt-title { font-family: var(--ed-serif); font-size: 24px; font-weight: 700; text-wrap: balance; }
-.ed-prompt-text { font-size: 14px; color: var(--ed-muted); max-width: 36ch; text-wrap: pretty; }
+/* Center column: the ballot, shown once a county is clicked */
+.ed-center { position: relative; min-height: 0; min-width: 0; overflow: hidden; display: flex; flex-direction: column; }
 
 .ed-ballot {
   position: absolute; inset: 0;
@@ -141,8 +141,7 @@
   opacity: 0; visibility: hidden; transform: translateY(12px);
   transition: opacity .35s var(--ed-ease), transform .45s var(--ed-ease), visibility 0s .35s;
 }
-.ed-dashboard.is-active .ed-ballot { opacity: 1; visibility: visible; transform: none; transition-delay: 0s; }
-.ed-dashboard.is-active .ed-prompt { opacity: 0; pointer-events: none; }
+.ed-dashboard.is-active .ed-ballot { opacity: 1; visibility: visible; transform: none; transition-delay: .15s, .1s, 0s; }
 
 .ed-ballot-head {
   flex: none; display: flex; align-items: center; gap: 16px;
@@ -274,14 +273,10 @@
   .ed-map-col { align-items: center; }
   .ed-map-head { align-self: stretch; text-align: center; }
   .ed-map-wrap { width: min(72vw, 320px); flex: none; }
-  .ed-center { min-height: 0; }
-  .ed-prompt { padding: 24px 16px; }
-  .ed-prompt-arrow { transform: rotate(90deg); animation-name: ed-nudge-up; }
-  @keyframes ed-nudge-up { 0%, 100% { transform: rotate(90deg) translateX(0); } 50% { transform: rotate(90deg) translateX(-8px); } }
-  .ed-prompt-title { font-size: 20px; }
+  .ed-center { min-height: 0; display: none; overflow: visible; }
+  .ed-dashboard.is-active .ed-center { display: flex; }
   .ed-ballot { position: relative; inset: auto; max-height: 0; overflow: hidden; }
   .ed-dashboard.is-active .ed-ballot { max-height: 80vh; }
-  .ed-dashboard.is-active .ed-prompt { display: none; }
   .ed-ballot-scroll { max-height: calc(80vh - 90px); }
   .ed-ballot-title { font-size: 20px; }
   .ed-open-page { font-size: 12px; padding: 8px 10px; }

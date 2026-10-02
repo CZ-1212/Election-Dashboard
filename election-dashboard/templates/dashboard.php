@@ -35,11 +35,6 @@ $s = $settings;
 		</section>
 
 		<section class="ed-center">
-			<div class="ed-prompt">
-				<div class="ed-prompt-arrow" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M40 24H10"/><path d="M20 14 10 24l10 10"/></svg></div>
-				<div class="ed-prompt-title"><?php echo esc_html( $s['prompt_title'] ); ?></div>
-				<div class="ed-prompt-text"><?php echo esc_html( $s['prompt_text'] ); ?></div>
-			</div>
 			<div class="ed-ballot">
 				<div class="ed-ballot-head">
 					<img alt="" width="54" height="54" decoding="async">
