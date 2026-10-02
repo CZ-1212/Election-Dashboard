@@ -75,17 +75,49 @@ if INLINE:
 <style>
 :root { --page-bg: #ffffff; --page-fg: #1b1f2a; --page-muted: #5b6373; --page-rule: #d9dfeb; color-scheme: light; }
 body { background: var(--page-bg); color: var(--page-fg); margin: 0; padding-inline: 16px; padding-block: 8px 32px; font-family: "Montserrat", "Helvetica Neue", Arial, sans-serif; }
-.pv-note { max-width: 1400px; margin: 0 auto 8px; font-size: 12px; color: var(--page-muted); text-align: center; }
-.pv-note b { color: var(--page-fg); }
+.pv-bar { max-width: 1400px; margin: 0 auto 10px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 14px; font-size: 12px; color: var(--page-muted); }
+.pv-bar b { color: var(--page-fg); }
+.pv-seg { display: inline-flex; border: 1px solid #c6d6ee; }
+.pv-seg button { font: inherit; font-size: 12px; font-weight: 700; padding: 5px 10px; border: 0; background: #fff; color: #1f5fbf; cursor: pointer; }
+.pv-seg button + button { border-left: 1px solid #c6d6ee; }
+.pv-seg button[aria-pressed="true"] { background: #1f5fbf; color: #fff; }
+.pv-stage { position: relative; overflow: hidden; }
+.pv-stage .ed-root { transform-origin: top left; }
+.pv-stage.is-phone .ed-root { width: 390px; margin: 0 auto; }
 .ed-dashboard { border: 1px solid #e3e8f2; }
 .pv-foot { max-width: 720px; margin: 8px auto 0; padding-top: 12px; border-top: 1px solid var(--page-rule); font-size: 12px; line-height: 1.5; color: var(--page-muted); text-align: center; }
 %s
 .ed-dashboard { padding-inline: 0; }
 </style>
-<p class="pv-note"><b>Preview build.</b> Click a county to open its ballot. The three right-hand icons and the ballot box are stand-ins until the final artwork arrives.</p>
+<div class="pv-bar"><b>Preview build.</b> Click a county to open its ballot. <span>View:</span> <span class="pv-seg" role="group" aria-label="Preview size"><button type="button" id="pv-desktop" data-view="desktop">Desktop</button><button type="button" id="pv-phone" data-view="phone">Phone</button><button type="button" id="pv-fit" data-view="fit">Fit window</button></span></div>
+<div class="pv-stage" id="pv-stage">
 %s
+</div>
 <p class="pv-foot">On the live site each ballot window shows that county&rsquo;s page from localnewsmatters.org. This preview cannot reach the site, so it shows sample text instead; the &ldquo;Full page&rdquo; button links to the real page.</p>
 <script>%s</script>
+<script>
+(function () {
+  var stage = document.getElementById('pv-stage'), root = stage.querySelector('.ed-root'), btns = document.querySelectorAll('.pv-seg button');
+  var view = 'fit';
+  function apply() {
+    stage.classList.toggle('is-phone', view === 'phone');
+    root.style.width = ''; root.style.transform = ''; stage.style.height = '';
+    if (view === 'desktop') {
+      var avail = stage.clientWidth, s = Math.min(1, avail / 1400);
+      root.style.width = '1400px'; root.style.transform = 'scale(' + s + ')';
+      root.style.marginLeft = Math.max(0, (avail - 1400 * s) / 2) + 'px';
+      stage.style.height = Math.ceil(root.offsetHeight * s) + 'px';
+    } else { root.style.marginLeft = ''; }
+    btns.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-view') === view)); });
+  }
+  btns.forEach(function (b) { b.addEventListener('click', function () { view = b.getAttribute('data-view'); apply(); }); });
+  window.addEventListener('resize', apply);
+  var ro = window.ResizeObserver ? new ResizeObserver(function () { if (view === 'desktop') { apply(); } }) : null;
+  if (ro) { ro.observe(root); }
+  view = window.innerWidth < 1000 ? 'desktop' : 'fit';   // narrow panel: show the desktop layout scaled down
+  apply();
+})();
+</script>
 ''' % (css, tpl, js)
 else:
     html = '''<!doctype html>

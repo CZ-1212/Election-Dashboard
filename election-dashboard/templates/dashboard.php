@@ -6,7 +6,7 @@
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 $s = $settings;
 ?>
-<div class="ed-dashboard" id="election-dashboard"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>>
+<div class="ed-root"><div class="ed-dashboard" id="election-dashboard"<?php echo $style ? ' style="' . esc_attr( $style ) . '"' : ''; ?>>
 	<script type="application/json" class="ed-config"><?php echo wp_json_encode( $config ); ?></script>
 
 	<header class="ed-top">
@@ -79,4 +79,4 @@ $s = $settings;
 	</footer>
 
 	<p class="ed-sr" aria-live="polite"></p>
-</div>
+</div></div>

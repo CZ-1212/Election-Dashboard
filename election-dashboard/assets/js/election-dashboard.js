@@ -77,9 +77,10 @@
       var m = slug && byCounty(markers, slug);
       if (!m) { tip.classList.remove('is-visible'); return; }
       var r = m.getBoundingClientRect(), w = mapWrap.getBoundingClientRect();
+      var k = w.width ? mapWrap.offsetWidth / w.width : 1;   // 1 unless the dashboard is CSS-scaled
       tip.textContent = counties[slug] ? counties[slug].title : slug;
-      tip.style.left = (r.left + r.width / 2 - w.left) + 'px';
-      tip.style.top = (r.top - w.top) + 'px';
+      tip.style.left = ((r.left + r.width / 2 - w.left) * k) + 'px';
+      tip.style.top = ((r.top - w.top) * k) + 'px';
       tip.classList.add('is-visible');
     }
 
@@ -155,7 +156,7 @@
       root.classList.add('is-active');
       renderBallot(slug);
       paintMap();
-      if (window.innerWidth <= 900 && ballot.scrollIntoView) {
+      if (root.offsetWidth <= 900 && ballot.scrollIntoView) {
         setTimeout(function () { ballot.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
       }
     }

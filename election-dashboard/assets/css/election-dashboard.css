@@ -1,5 +1,8 @@
 /* Election Dashboard v8 — map · ballot · side nav · key dates
-   All rules are scoped under .ed-dashboard so the widget can live inside any theme. */
+   All rules are scoped under .ed-dashboard so the widget can live inside any theme.
+   Layout breakpoints respond to the width of .ed-root (a container query), so the
+   dashboard stacks when the space it sits in is narrow, not only on small screens. */
+.ed-root { container: ed-root / inline-size; width: 100%; }
 .ed-dashboard {
   --ed-navy: #183a6b;
   --ed-blue: #1f5fbf;
@@ -260,11 +263,11 @@
 .ed-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- Tablet / phone ---------- */
-@media (max-width: 1100px) {
+@container ed-root (max-width: 1100px) {
   .ed-dashboard { --ed-map-col: 280px; --ed-nav-col: 170px; }
   .ed-title-text { font-size: 24px; }
 }
-@media (max-width: 900px) {
+@container ed-root (max-width: 900px) {
   .ed-dashboard { min-height: 0; }
   .ed-top { padding: 12px 16px; }
   .ed-main { grid-template-columns: 1fr; gap: 16px; padding: 16px; }
