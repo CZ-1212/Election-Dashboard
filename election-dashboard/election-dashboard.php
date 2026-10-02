@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Election Dashboard
  * Description: Interactive county map — hover a county to preview its emblem and ballot, click to pin it. Use the [election_dashboard] shortcode.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Cal Metrics Consulting
  * License:     GPL-2.0-or-later
  * Text Domain: election-dashboard
@@ -10,7 +10,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'ED_VERSION', '1.0.0' );
+define( 'ED_VERSION', '1.1.0' );
 define( 'ED_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ED_URL', plugin_dir_url( __FILE__ ) );
 
