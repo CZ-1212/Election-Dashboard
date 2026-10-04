@@ -148,7 +148,9 @@
   padding: 12px 18px; background: var(--ed-tint); border-bottom: 1px solid var(--ed-rule);
 }
 .ed-ballot-head img { width: 54px; height: 54px; border-radius: 50%; object-fit: contain; background: #fff; flex: none; }
-.ed-ballot-title { flex: 1 1 auto; margin: 0; font-family: var(--ed-font); font-size: 26px; font-weight: 700; line-height: 1.15; color: var(--ed-ink); }
+.ed-ballot-titles { flex: 1 1 auto; min-width: 0; }
+.ed-ballot-title { margin: 0; font-family: var(--ed-font); font-size: 24px; font-weight: 700; line-height: 1.1; color: var(--ed-ink); }
+.ed-ballot-sub { margin-top: 2px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ed-blue); }
 .ed-dashboard a.ed-open-page {
   flex: none; background: #fff; padding: 10px 14px; font-family: var(--ed-font); font-size: 15px; font-weight: 700; letter-spacing: .02em;
   color: var(--ed-ink-2) !important; text-decoration: underline; box-shadow: 0 0 0 1px #d6e3f5; white-space: nowrap;

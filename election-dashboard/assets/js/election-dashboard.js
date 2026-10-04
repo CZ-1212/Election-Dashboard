@@ -21,6 +21,7 @@
     var ballot   = root.querySelector('.ed-ballot');
     var headImg  = root.querySelector('.ed-ballot-head img');
     var title    = root.querySelector('.ed-ballot-title');
+    var subtitle = root.querySelector('.ed-ballot-sub');
     var pageLink = root.querySelector('.ed-open-page');
     var closeBtn = root.querySelector('.ed-close');
     var scroller = root.querySelector('.ed-ballot-scroll');
@@ -125,6 +126,7 @@
       var county = counties[slug];
       if (!county) { return; }
       title.textContent = county.title;
+      if (subtitle) { subtitle.hidden = true; subtitle.textContent = ''; }
       if (pageLink) { pageLink.hidden = !county.page; if (county.page) { pageLink.href = county.page; } }
       setImg(headImg, county);
       body.innerHTML = '<p class="ed-loading">Loading ballot…</p>';
@@ -134,7 +136,10 @@
         if (pinned !== slug) { return; }
         body.innerHTML = html;
         autoSection(body);
-        if (searchWrap) { searchWrap.style.display = body.querySelector('.ed-contest') ? '' : 'none'; }
+        // the page's own banner repeats the county name; keep only its election title, up in our header
+        var et = body.querySelector('.lnm-election-title');
+        if (subtitle) { subtitle.textContent = et ? et.textContent.trim() : ''; subtitle.hidden = !et; }
+        if (searchWrap) { searchWrap.style.display = body.querySelector('.ed-contest, .race-box') ? '' : 'none'; }
       }).catch(function () {
         if (pinned !== slug) { return; }
         body.innerHTML = '<p class="ed-error">Sorry, this ballot could not be loaded right now.</p>';
@@ -194,12 +199,12 @@
     if (search) {
       search.addEventListener('input', function () {
         var q = search.value.trim().toLowerCase(), any = false;
-        Array.prototype.forEach.call(body.querySelectorAll('.ed-contest'), function (c) {
+        Array.prototype.forEach.call(body.querySelectorAll('.ed-contest, .race-box'), function (c) {
           var hit = !q || c.textContent.toLowerCase().indexOf(q) !== -1;
           c.classList.toggle('is-filtered', !hit); if (hit) { any = true; }
         });
         Array.prototype.forEach.call(body.querySelectorAll('.ed-group'), function (g) {
-          g.classList.toggle('is-filtered', !g.querySelector('.ed-contest:not(.is-filtered)'));
+          g.classList.toggle('is-filtered', !g.querySelector('.ed-contest:not(.is-filtered), .race-box:not(.is-filtered)'));
         });
         var empty = body.querySelector('.ed-no-results');
         if (!any && q) {

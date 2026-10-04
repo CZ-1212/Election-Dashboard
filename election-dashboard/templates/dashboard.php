@@ -38,7 +38,7 @@ $s = $settings;
 			<div class="ed-ballot">
 				<div class="ed-ballot-head">
 					<img alt="" width="54" height="54" decoding="async">
-					<h3 class="ed-ballot-title"></h3>
+					<div class="ed-ballot-titles"><h3 class="ed-ballot-title"></h3><div class="ed-ballot-sub" hidden></div></div>
 					<a class="ed-open-page" href="#" target="_blank" rel="noopener" hidden><?php esc_html_e( 'Full page', 'election-dashboard' ); ?> &#8599;</a>
 					<button type="button" class="ed-close" aria-label="<?php esc_attr_e( 'Close ballot', 'election-dashboard' ); ?>">&times;</button>
 				</div>

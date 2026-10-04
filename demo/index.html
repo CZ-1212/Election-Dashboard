@@ -88,7 +88,7 @@
 			<div class="ed-ballot">
 				<div class="ed-ballot-head">
 					<img alt="" width="54" height="54" decoding="async">
-					<h3 class="ed-ballot-title"></h3>
+					<div class="ed-ballot-titles"><h3 class="ed-ballot-title"></h3><div class="ed-ballot-sub" hidden></div></div>
 					<a class="ed-open-page" href="#" target="_blank" rel="noopener" hidden>Full page &#8599;</a>
 					<button type="button" class="ed-close" aria-label="Close ballot">&times;</button>
 				</div>
@@ -121,19 +121,26 @@
 	</footer>
 
 	<p class="ed-sr" aria-live="polite"></p>
-	<template data-ballot="mendocino"><div class="ed-group">
-  <h3>City of Fort Bragg</h3>
-  <div class="ed-contest">
-    <h4>Measure B</h4>
-    <p>Fort Bragg Fire Protection Measure. To maintain reliable local fire protection services; replace aging fire engines and emergency response equipment; keep funds locally controlled and unavailable for State use; and require annual audit and public reporting, shall the City of Fort Bragg authorize a $50 annual parcel tax for 10 years, generating approximately $123,900 annually?</p>
-  </div>
-</div>
-<div class="ed-group">
-  <h3>City of Point Arena</h3>
-  <div class="ed-contest">
-    <h4>Measure C</h4>
-    <p>Shall Ordinance No. 247 amending Chapter 3.30.030 of the Point Arena Municipal Code to increase the City of Point Arena's existing Transient Occupancy Tax (a bed tax paid when overnight visitors rent a room) from twelve percent (12%) to fourteen percent (14%) to fund public services and maintain public areas, effective April 1, 2027, which proposed rate increase and amendment is anticipated to raise an additional $35,833 per year in revenue and which will continue until repealed by the City Council or the city voters, be adopted?</p>
-  </div>
+	<template data-ballot="mendocino"><style>
+.lnm-results-widget, .lnm-results-widget * { box-sizing: border-box; margin: 0; padding: 0; }
+.lnm-results-widget { font-family: Arial, sans-serif; }
+.lnm-results-widget .lnm-county-banner { background-color: #1a3668; color: white; padding: 14px 18px; border-radius: 5px; margin-bottom: 12px; text-align: center; }
+.lnm-results-widget .lnm-county-name { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.lnm-results-widget .lnm-election-title { font-size: 13px; color: #accf00; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+.lnm-results-widget .race-box { background-color: white; border: 1px solid #ddd; border-radius: 5px; margin-bottom: 20px; overflow: hidden; }
+.lnm-results-widget .race-title { background-color: #1a3668; color: white; padding: 10px 14px; font-weight: bold; font-size: 1em; }
+.lnm-results-widget .measure-block { padding: 16px; }
+.lnm-results-widget .measure-name { font-size: 1.15em; font-weight: 700; color: #1a3668; margin-bottom: 6px; }
+.lnm-results-widget .measure-desc { font-size: 0.88em; color: #555; line-height: 1.55; }
+.lnm-results-widget .search-wrap { margin-bottom: 16px; }
+.lnm-results-widget .search-input { width: 100%; padding: 10px 16px; font-size: 15px; border: 1px solid #ccc; border-radius: 6px; }
+</style>
+<div class="lnm-results-widget">
+<div class="lnm-county-banner"><div class="lnm-county-name">Mendocino County</div><div class="lnm-election-title">November 3, 2026 General Election</div></div>
+<div class="search-wrap"><input class="search-input" placeholder="Search for measures, candidates, contests…" type="text"></div>
+<div class="no-results">No results found.</div>
+<div class="race-box"><div class="race-title">City of Fort Bragg</div><div class="measure-block"><div class="measure-name">Measure B</div><div class="measure-desc">Fort Bragg Fire Protection Measure. To maintain reliable local fire protection services; replace aging fire engines and emergency response equipment; keep funds locally controlled and unavailable for State use; and require annual audit and public reporting, shall the City of Fort Bragg authorize a $50 annual parcel tax for 10 years, generating approximately $123,900 annually?</div></div></div>
+<div class="race-box"><div class="race-title">City of Point Arena</div><div class="measure-block"><div class="measure-name">Measure C</div><div class="measure-desc">Shall Ordinance No. 247 amending Chapter 3.30.030 of the Point Arena Municipal Code to increase the City of Point Arena's existing Transient Occupancy Tax (a bed tax paid when overnight visitors rent a room) from twelve percent (12%) to fourteen percent (14%) to fund public services and maintain public areas, effective April 1, 2027, which proposed rate increase and amendment is anticipated to raise an additional $35,833 per year in revenue and which will continue until repealed by the City Council or the city voters, be adopted?</div></div></div>
 </div>
 </template>
 	<template data-ballot="sonoma"><!-- PLACEHOLDER — replace this file with the Sonoma County ballot preview (see README: "Wiring up your ballots"). -->
