@@ -32,6 +32,7 @@
     var pinned = null;      // county whose ballot is open
     var hovered = null;
     var cache = {}, pending = {};
+    var storyCache = {};   // slug -> { measure: {normName: [stories]}, race: {...} }
     var emblemsPreloaded = false;
 
     /* ---------- helpers ---------- */
@@ -111,7 +112,7 @@
           .then(function (r) {
             if (!r.ok) { throw new Error('HTTP ' + r.status); }
             var ct = r.headers.get('content-type') || '';
-            return ct.indexOf('json') !== -1 ? r.json().then(function (j) { return j.html || j.content || ''; }) : r.text();
+            return ct.indexOf('json') !== -1 ? r.json().then(function (j) { if (j.stories) { storyCache[slug] = j.stories; } return j.html || j.content || ''; }) : r.text();
           })
           .then(function (html) { cache[slug] = html; delete pending[slug]; return html; })
           .catch(function (err) { delete pending[slug]; throw err; });
@@ -119,6 +120,27 @@
       }
       cache[slug] = '<p class="ed-empty">Ballot preview coming soon.</p>';
       return Promise.resolve(cache[slug]);
+    }
+
+    function normKey(s) { return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); }
+    function escapeText(s) { return String(s || '').replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    /* "Coverage" links under each measure / race the newsroom has written about */
+    function addCoverage(slug) {
+      var st = storyCache[slug] || (counties[slug] && counties[slug].stories) || null;
+      if (!st) { return; }
+      Array.prototype.forEach.call(body.querySelectorAll('.race-box'), function (box) {
+        var titleEl = box.querySelector('.race-title'), nameEl = box.querySelector('.measure-name');
+        var list = null;
+        if (nameEl && st.measure) { list = st.measure[normKey(nameEl.textContent)]; }
+        if (!list && titleEl && st.race) { list = st.race[normKey(titleEl.textContent)]; }
+        if (!list || !list.length || box.querySelector('.ed-coverage')) { return; }
+        var div = document.createElement('div');
+        div.className = 'ed-coverage';
+        div.innerHTML = '<span class="ed-coverage-label">Coverage</span>' + list.map(function (s) {
+          return '<a href="' + escapeText(s.url) + '" target="_blank" rel="noopener">' + escapeText(s.title) + '</a>';
+        }).join('');
+        box.appendChild(div);
+      });
     }
 
     function renderBallot(slug) {
@@ -134,6 +156,7 @@
         if (pinned !== slug) { return; }
         body.innerHTML = html;
         autoSection(body);
+        addCoverage(slug);
         if (searchWrap) { searchWrap.style.display = body.querySelector('.ed-contest, .race-box') ? '' : 'none'; }
       }).catch(function () {
         if (pinned !== slug) { return; }

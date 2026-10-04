@@ -32,27 +32,6 @@ class ED_Stories {
 
 	public static function item( $id ) { $idx = self::index(); return isset( $idx['by_id'][ $id ] ) ? $idx['by_id'][ $id ] : null; }
 
-	/** Seed from data/stories.json once (the spreadsheet backfill). Safe to call repeatedly. */
-	public static function seed() {
-		if ( get_option( 'ed_story_links_seeded' ) ) { return 0; }
-		$file = ED_DIR . 'data/stories.json';
-		if ( ! file_exists( $file ) ) { return 0; }
-		$seed = json_decode( file_get_contents( $file ), true );
-		$all = self::all();
-		$n = 0;
-		foreach ( (array) $seed as $url => $row ) {
-			if ( isset( $all[ $url ] ) ) { continue; }
-			$items = array();
-			foreach ( (array) $row['items'] as $id ) { if ( self::item( $id ) ) { $items[ $id ] = array( 'confidence' => 'exact', 'reason' => 'From the backfill spreadsheet' ); } }
-			if ( ! $items ) { continue; }
-			$all[ $url ] = array_merge( self::describe_url( $url ), array( 'status' => 'approved', 'items' => $items, 'source' => 'backfill' ) );
-			$n++;
-		}
-		self::save( $all );
-		update_option( 'ed_story_links_seeded', 1 );
-		return $n;
-	}
-
 	/** Title and post id for a URL on this site; falls back to a title built from the slug. */
 	public static function describe_url( $url ) {
 		$post_id = function_exists( 'url_to_postid' ) ? url_to_postid( $url ) : 0;

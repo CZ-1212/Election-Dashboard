@@ -30,6 +30,8 @@ for slug, name, title, emblem, ballot in rows:
     m = re.search(r"'url'\s*=>\s*'([^']+)'", ballot)
     if m:
         entry['page'] = m.group(1)
+    if slug == 'mendocino':   # sample coverage links so the demo shows the feature
+        entry['stories'] = {'measure': {'measure b': [{'url': 'https://localnewsmatters.org/2026/06/29/fort-bragg-fire-tax-november-ballot/', 'title': 'Fort Bragg fire tax heads to the November ballot', 'date': '2026-06-29'}]}, 'race': {}}
     config['counties'][slug] = entry
     frag = open(os.path.join(P, 'ballots', '%s.html' % slug)).read()
     templates.append('<template data-ballot="%s">%s</template>' % (slug, frag))

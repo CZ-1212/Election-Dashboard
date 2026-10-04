@@ -94,6 +94,21 @@ Content with no headings and no `.ed-contest` blocks (an iframe, a single image)
 
 Developers can also change the county list or the ballot HTML with the `election_dashboard_counties` and `election_dashboard_ballot_html` filters.
 
+## Story coverage (automatic)
+
+Stories tagged **election-2026** are matched to the measure or race they cover and appear as a **Coverage** line under that item in the ballot window.
+
+How it works:
+
+1. When a post with the tag is published (or updated), the plugin reads its title, body, tags and the county it refers to, and compares it with the ballot index (`data/ballot-index.json`, every measure, race and candidate in the 13 counties).
+2. **Certain** matches (the measure letter plus its city or county, or a candidate's full name in the right race) are published straight away.
+3. **Uncertain** matches wait in **Election Dashboard → Story matches** in the WordPress admin, where an editor ticks the right items and clicks Approve (or Reject). Stories with no match are listed there too so a link can be added by hand.
+4. A daily background scan picks up anything missed, and **Scan the tag now** on that page runs it on demand. Run it once after activating the plugin to process the stories already tagged.
+
+Optional AI step: paste a Claude API key on the same page and uncertain stories are read by Claude before they reach the queue, so far fewer need a human. Without a key the plugin runs the plain matcher only. The key can also be set as `ED_ANTHROPIC_API_KEY` in `wp-config.php`.
+
+The tag slug, the auto-approve switch and the model are all on the same settings page. Approved links are stored in the `ed_story_links` option and are returned by the ballot REST route as `stories`, keyed by measure name and race title, so they also work when the ballot HTML is pulled from another site. After the ballot pages change, rebuild the index with `python3 tools/build-ballot-index.py`.
+
 ## Customising the look
 
 * Colours, widths and animation speed are CSS variables at the top of `assets/css/election-dashboard.css` (`--ed-navy`, `--ed-ballot-width`, `--ed-speed`, …).

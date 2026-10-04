@@ -5,10 +5,9 @@
 
 Writes
   election-dashboard/data/ballot-index.json   every measure, contested race and uncontested race, per county
-  election-dashboard/data/stories.json        story URL -> ballot items it covers (from the Story columns)
 
-The plugin seeds its story links from stories.json the first time it runs, and the matcher
-uses ballot-index.json to decide which measure or race a newly published story is about.
+The matcher uses ballot-index.json to decide which measure or race a newly published story is about.
+(The spreadsheet's Story columns are read into tools/story-backfill.json for reference only.)
 """
 import json, os, re, sys, unicodedata
 import openpyxl
@@ -93,7 +92,7 @@ for it in unc.values(): items[it['id']] = it
 index = {'generated_from': os.path.basename(SRC), 'counties': sorted(set(COUNTY_SLUGS.values())), 'items': sorted(items.values(), key=lambda i: (i['county'], i['type'], i['key']))}
 os.makedirs(OUT, exist_ok=True)
 json.dump(index, open(os.path.join(OUT, 'ballot-index.json'), 'w'), ensure_ascii=False, indent=0)
-json.dump({u: {'items': sorted(ids)} for u, ids in sorted(stories.items())}, open(os.path.join(OUT, 'stories.json'), 'w'), ensure_ascii=False, indent=1)
+json.dump({u: {'items': sorted(ids)} for u, ids in sorted(stories.items())}, open(os.path.join(ROOT, 'tools/story-backfill.json'), 'w'), ensure_ascii=False, indent=1)
 by_type = {}
 for i in items.values(): by_type[i['type']] = by_type.get(i['type'], 0) + 1
 print('items:', by_type, '| stories:', len(stories), '| index bytes:', os.path.getsize(os.path.join(OUT, 'ballot-index.json')))

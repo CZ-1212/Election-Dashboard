@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Election Dashboard
  * Description: Interactive county map — hover a county to preview its emblem and ballot, click to pin it. Use the [election_dashboard] shortcode.
- * Version:     1.3.6
+ * Version:     1.4.0
  * Author:      Cal Metrics Consulting
  * License:     GPL-2.0-or-later
  * Text Domain: election-dashboard
@@ -10,9 +10,16 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'ED_VERSION', '1.3.6' );
+define( 'ED_VERSION', '1.4.0' );
 define( 'ED_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ED_URL', plugin_dir_url( __FILE__ ) );
+
+require_once ED_DIR . 'includes/class-ed-matcher.php';
+require_once ED_DIR . 'includes/class-ed-ai.php';
+require_once ED_DIR . 'includes/class-ed-stories.php';
+require_once ED_DIR . 'includes/automation.php';
+if ( is_admin() ) { require_once ED_DIR . 'includes/admin.php'; }
+register_deactivation_hook( __FILE__, function () { wp_clear_scheduled_hook( 'ed_daily_scan' ); } );
 
 /**
  * Returns the county configuration (see includes/counties.php).
@@ -130,7 +137,7 @@ function ed_rest_ballot( WP_REST_Request $req ) {
 		return new WP_Error( 'ed_not_found', 'Unknown county', array( 'status' => 404 ) );
 	}
 	$html = ed_get_ballot_html( $slug, $counties[ $slug ] );
-	$res  = new WP_REST_Response( array( 'slug' => $slug, 'html' => $html ) );
+	$res  = new WP_REST_Response( array( 'slug' => $slug, 'html' => $html, 'stories' => ED_Stories::for_county( $slug ) ) );
 	$res->header( 'Cache-Control', 'public, max-age=300' );
 	return $res;
 }
