@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Election Dashboard
  * Description: Interactive county map — hover a county to preview its emblem and ballot, click to pin it. Use the [election_dashboard] shortcode.
- * Version:     1.4.1
+ * Version:     1.4.2
  * Author:      Cal Metrics Consulting
  * License:     GPL-2.0-or-later
  * Text Domain: election-dashboard
@@ -10,7 +10,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'ED_VERSION', '1.4.1' );
+define( 'ED_VERSION', '1.4.2' );
 define( 'ED_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ED_URL', plugin_dir_url( __FILE__ ) );
 
@@ -137,6 +137,9 @@ function ed_rest_ballot( WP_REST_Request $req ) {
 	if ( ! isset( $counties[ $slug ] ) ) {
 		return new WP_Error( 'ed_not_found', 'Unknown county', array( 'status' => 404 ) );
 	}
+	// First run: nobody has scanned the tag yet, so do it now (a few hundred stories take under a second without AI).
+	if ( ! get_option( 'ed_last_scan' ) && class_exists( 'ED_Automation' ) ) { ED_Automation::scan(); }
+	elseif ( class_exists( 'ED_Automation' ) && ED_Automation::queue_size() ) { ED_Automation::run_queue( 3 ); }
 	$html = ed_get_ballot_html( $slug, $counties[ $slug ] );
 	$res  = new WP_REST_Response( array( 'slug' => $slug, 'html' => $html, 'stories' => ED_Stories::for_county( $slug ) ) );
 	$res->header( 'Cache-Control', 'public, max-age=300' );
