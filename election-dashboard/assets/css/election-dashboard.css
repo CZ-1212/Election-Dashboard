@@ -176,6 +176,12 @@
 .ed-search input:focus { border-color: #4a8fe0; }
 .ed-search input::placeholder { color: #8a8d93; }
 
+/* The county pages' own widget: its banner repeats the county name shown in our header, and its search box
+   has no script once embedded, so both are hidden. Our header shows the election title and our search filters its race boxes. */
+.ed-ballot-body .lnm-county-banner, .ed-ballot-body .search-wrap, .ed-ballot-body .no-results { display: none !important; }
+.ed-ballot-body .lnm-results-widget .race-box { margin-bottom: 12px; }
+.ed-ballot-body .lnm-results-widget .race-box:last-child { margin-bottom: 0; }
+
 .ed-ballot-body { display: flex; flex-direction: column; gap: 10px; font-size: 13px; line-height: 1.5; color: var(--ed-ink-2); }
 .ed-ballot-body > * { margin: 0; }
 .ed-ballot-body .ed-contest { border: 1px solid var(--ed-line); overflow: hidden; }
