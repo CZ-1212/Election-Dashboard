@@ -148,9 +148,7 @@
   padding: 12px 18px; background: var(--ed-tint); border-bottom: 1px solid var(--ed-rule);
 }
 .ed-ballot-head img { width: 54px; height: 54px; border-radius: 50%; object-fit: contain; background: #fff; flex: none; }
-.ed-ballot-titles { flex: 1 1 auto; min-width: 0; }
-.ed-ballot-title { margin: 0; font-family: var(--ed-font); font-size: 24px; font-weight: 700; line-height: 1.1; color: var(--ed-ink); }
-.ed-ballot-sub { margin-top: 2px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ed-blue); }
+.ed-ballot-title { flex: 1 1 auto; min-width: 0; margin: 0; font-family: var(--ed-font); font-size: 24px; font-weight: 700; line-height: 1.1; color: var(--ed-ink); }
 .ed-dashboard a.ed-open-page {
   flex: none; background: #fff; padding: 10px 14px; font-family: var(--ed-font); font-size: 15px; font-weight: 700; letter-spacing: .02em;
   color: var(--ed-ink-2) !important; text-decoration: underline; box-shadow: 0 0 0 1px #d6e3f5; white-space: nowrap;
@@ -177,7 +175,7 @@
 .ed-search input::placeholder { color: #8a8d93; }
 
 /* The county pages' own widget: its banner repeats the county name shown in our header, and its search box
-   has no script once embedded, so both are hidden. Our header shows the election title and our search filters its race boxes. */
+   has no script once embedded, so both are hidden. Our search filters its race boxes. */
 .ed-ballot-body .lnm-county-banner, .ed-ballot-body .search-wrap, .ed-ballot-body .no-results { display: none !important; }
 .ed-ballot-body .lnm-results-widget .race-box { margin-bottom: 12px; }
 .ed-ballot-body .lnm-results-widget .race-box:last-child { margin-bottom: 0; }

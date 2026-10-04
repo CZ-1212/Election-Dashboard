@@ -21,7 +21,6 @@
     var ballot   = root.querySelector('.ed-ballot');
     var headImg  = root.querySelector('.ed-ballot-head img');
     var title    = root.querySelector('.ed-ballot-title');
-    var subtitle = root.querySelector('.ed-ballot-sub');
     var pageLink = root.querySelector('.ed-open-page');
     var closeBtn = root.querySelector('.ed-close');
     var scroller = root.querySelector('.ed-ballot-scroll');
@@ -126,7 +125,6 @@
       var county = counties[slug];
       if (!county) { return; }
       title.textContent = county.title;
-      if (subtitle) { subtitle.hidden = true; subtitle.textContent = ''; }
       if (pageLink) { pageLink.hidden = !county.page; if (county.page) { pageLink.href = county.page; } }
       setImg(headImg, county);
       body.innerHTML = '<p class="ed-loading">Loading ballot…</p>';
@@ -136,9 +134,6 @@
         if (pinned !== slug) { return; }
         body.innerHTML = html;
         autoSection(body);
-        // the page's own banner repeats the county name; keep only its election title, up in our header
-        var et = body.querySelector('.lnm-election-title');
-        if (subtitle) { subtitle.textContent = et ? et.textContent.trim() : ''; subtitle.hidden = !et; }
         if (searchWrap) { searchWrap.style.display = body.querySelector('.ed-contest, .race-box') ? '' : 'none'; }
       }).catch(function () {
         if (pinned !== slug) { return; }
