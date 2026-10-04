@@ -103,7 +103,8 @@ How it works:
 1. When a post with the tag is published (or updated), the plugin reads its title, body, tags and the county it refers to, and compares it with the ballot index (`data/ballot-index.json`, every measure, race and candidate in the 13 counties).
 2. **Certain** matches (the measure letter plus its city or county, or a candidate's full name in the right race) are published straight away.
 3. **Uncertain** matches wait in **Election Dashboard → Story matches** in the WordPress admin, where an editor ticks the right items and clicks Approve (or Reject). Stories with no match are listed there too so a link can be added by hand.
-4. A daily background scan picks up anything missed, and **Scan the tag now** on that page runs it on demand. Run it once after activating the plugin to process the stories already tagged.
+4. Stories published before the cut-off date on the settings page (default July 1, 2026) are ignored: June primary coverage reuses the same measure letters and candidate names.
+5. A daily background scan picks up anything missed, and **Scan the tag now** on that page runs it on demand. Run it once after activating the plugin to process the stories already tagged.
 
 Optional AI step: paste a Claude API key on the same page and uncertain stories are read by Claude before they reach the queue, so far fewer need a human. Without a key the plugin runs the plain matcher only. The key can also be set as `ED_ANTHROPIC_API_KEY` in `wp-config.php`.
 

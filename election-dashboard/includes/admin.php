@@ -28,7 +28,7 @@ class ED_Admin {
 		register_setting( 'ed_settings', 'ed_anthropic_api_key', array( 'sanitize_callback' => 'sanitize_text_field' ) );
 		register_setting( 'ed_settings', 'ed_ai_model', array( 'sanitize_callback' => 'sanitize_text_field', 'default' => 'claude-opus-5-5' ) );
 		register_setting( 'ed_settings', 'ed_election_tag', array( 'sanitize_callback' => 'sanitize_title', 'default' => 'election-2026' ) );
-		register_setting( 'ed_settings', 'ed_min_date', array( 'sanitize_callback' => function ( $v ) { $v = trim( (string) $v ); return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $v ) ? $v : ''; }, 'default' => '2026-08-01' ) );
+		register_setting( 'ed_settings', 'ed_min_date', array( 'sanitize_callback' => function ( $v ) { $v = trim( (string) $v ); return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $v ) ? $v : ''; }, 'default' => '2026-07-01' ) );
 		register_setting( 'ed_settings', 'ed_auto_approve_exact', array( 'sanitize_callback' => 'absint', 'default' => 1 ) );
 	}
 
@@ -145,7 +145,7 @@ class ED_Admin {
 				<?php settings_fields( 'ed_settings' ); ?>
 				<table class="form-table">
 					<tr><th>Election tag</th><td><input type="text" name="ed_election_tag" value="<?php echo esc_attr( get_option( 'ed_election_tag', 'election-2026' ) ); ?>" class="regular-text"><p class="description">Tag slug that marks election stories.</p></td></tr>
-					<tr><th>Ignore certainty before</th><td><input type="date" name="ed_min_date" value="<?php echo esc_attr( get_option( 'ed_min_date', '2026-08-01' ) ); ?>"><p class="description">Stories published before this date (June primary coverage, measures placed on the ballot before letters were assigned) are never auto-approved; they wait for review. Leave empty to turn this off. Takes effect on the next scan.</p></td></tr>
+					<tr><th>Ignore stories before</th><td><input type="date" name="ed_min_date" value="<?php echo esc_attr( get_option( 'ed_min_date', '2026-07-01' ) ); ?>"><p class="description">Stories published before this date are skipped entirely: June primary coverage reuses the same measure letters and candidate names. Links added by hand are kept whatever their date. Leave empty to turn this off. Takes effect on the next scan.</p></td></tr>
 					<tr><th>Auto-approve certain matches</th><td><input type="hidden" name="ed_auto_approve_exact" value="0"><label><input type="checkbox" name="ed_auto_approve_exact" value="1" <?php checked( 1, get_option( 'ed_auto_approve_exact', 1 ) ); ?>> When every match is certain, publish the links without review</label></td></tr>
 					<tr><th>Claude API key</th><td><input type="password" name="ed_anthropic_api_key" value="<?php echo esc_attr( get_option( 'ed_anthropic_api_key', '' ) ); ?>" class="regular-text" autocomplete="off" <?php disabled( defined( 'ED_ANTHROPIC_API_KEY' ) ); ?>><p class="description">Optional. With a key, uncertain stories are read by Claude before they reach the queue. Leave empty to run without AI. You can also define <code>ED_ANTHROPIC_API_KEY</code> in wp-config.php.</p></td></tr>
 					<tr><th>Model</th><td><input type="text" name="ed_ai_model" value="<?php echo esc_attr( get_option( 'ed_ai_model', 'claude-opus-5-5' ) ); ?>" class="regular-text"><p class="description">Default <code>claude-opus-5-5</code>. <code>claude-sonnet-5-5</code> costs about half.</p></td></tr>
