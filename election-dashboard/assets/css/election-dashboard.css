@@ -61,7 +61,7 @@
 .ed-dashboard a.ed-btn {
   display: inline-flex; align-items: center; height: 40px; padding: 0 14px; margin: 0;
   border: 1.5px solid var(--ed-blue); border-radius: 0; background: #fff; box-shadow: none;
-  font-family: var(--ed-font); font-size: 14px; font-weight: 700; line-height: 1; letter-spacing: 0;
+  font-family: var(--ed-font); font-size: 15px; font-weight: 700; line-height: 1; letter-spacing: 0;
   color: var(--ed-blue) !important; text-decoration: none !important; text-transform: none; white-space: nowrap;
   transition: background .15s, color .15s, transform .15s;
 }
@@ -90,8 +90,8 @@
 /* Map column */
 .ed-map-col { display: flex; flex-direction: column; min-height: 0; min-width: 0; }
 .ed-map-head { margin-bottom: 8px; }
-.ed-map-title { font-family: var(--ed-font); font-size: 17px; font-weight: 700; line-height: 1.2; color: var(--ed-navy); }
-.ed-map-sub { display: block; margin-top: 1px; font-size: 15px; font-weight: 700; line-height: 1.25; color: var(--ed-red); }
+.ed-map-title { font-family: var(--ed-font); font-size: 18px; font-weight: 700; line-height: 1.2; color: var(--ed-navy); }
+.ed-map-sub { display: block; margin-top: 1px; font-size: 16px; font-weight: 700; line-height: 1.25; color: var(--ed-red); }
 .ed-map-wrap { position: relative; flex: 1 1 auto; min-height: 0; width: auto; max-width: 100%; align-self: center; }  /* aspect-ratio is set inline from includes/map.json; the map scales to the height available */
 .ed-map-art { display: block; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-drag: none; }
 .ed-map-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
@@ -236,11 +236,11 @@
 .ed-compact .ed-top { min-height: 64px; padding: 8px 24px; }
 .ed-compact .ed-title-text { font-size: 26px; }
 .ed-compact .ed-title-icon { height: 48px; }
-.ed-compact .ed-dashboard a.ed-btn, .ed-dashboard.ed-compact a.ed-btn { height: 36px; font-size: 13px; padding: 0 12px; }
+.ed-compact .ed-dashboard a.ed-btn, .ed-dashboard.ed-compact a.ed-btn { height: 36px; font-size: 14px; padding: 0 12px; }
 .ed-compact .ed-main { padding: 10px 24px 8px; gap: 20px; }
 .ed-compact .ed-map-head { margin-bottom: 4px; }
-.ed-compact .ed-map-title { font-size: 15px; }
-.ed-compact .ed-map-sub { font-size: 13px; }
+.ed-compact .ed-map-title { font-size: 16px; }
+.ed-compact .ed-map-sub { font-size: 14px; }
 .ed-compact .ed-side-nav { min-height: 0; gap: 8px; }
 .ed-dashboard.ed-compact a.ed-nav-btn { padding: 6px 8px; min-height: 0; flex: 0 1 auto; }
 .ed-compact .ed-nav-btn picture { max-height: 100%; }
@@ -249,7 +249,7 @@
 .ed-compact .ed-ballot-title { font-size: 21px; }
 .ed-compact .ed-dates { padding: 8px 24px; gap: 14px; }
 .ed-compact .ed-dates-title { font-size: 16px; width: 96px; }
-.ed-compact .ed-date-text { font-size: 11px; }
+.ed-compact .ed-date-text { font-size: 12px; }
 .ed-compact .ed-date-badge { width: 40px; }
 
 /* ---------- Key election dates ---------- */
@@ -281,7 +281,7 @@
 .ed-date.is-highlight .ed-date-badge { border-color: var(--ed-red); background: var(--ed-red); }
 .ed-date.is-highlight .ed-date-month { background: var(--ed-red); border-bottom: 1px solid rgba(255,255,255,.5); }
 .ed-date.is-highlight .ed-date-day { color: #fff; font-size: 16px; }
-.ed-date-text { font-size: 11.5px; line-height: 1.25; text-wrap: pretty; max-width: 18ch; }
+.ed-date-text { font-size: 12.5px; line-height: 1.25; text-wrap: pretty; max-width: 18ch; }
 
 .ed-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
