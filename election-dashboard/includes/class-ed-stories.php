@@ -35,7 +35,7 @@ class ED_Stories {
 	/** Title and post id for a URL on this site; falls back to a title built from the slug. */
 	public static function describe_url( $url ) {
 		$post_id = function_exists( 'url_to_postid' ) ? url_to_postid( $url ) : 0;
-		$title = $post_id ? get_the_title( $post_id ) : '';
+		$title = $post_id ? html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, 'UTF-8' ) : '';
 		$date  = $post_id ? get_the_date( 'Y-m-d', $post_id ) : '';
 		if ( ! $title ) {
 			$slug = preg_replace( '#.*/(\d{4}/\d{2}/\d{2}/)?#', '', rtrim( $url, '/' ) );
@@ -92,7 +92,7 @@ class ED_Stories {
 				$it = self::item( $id );
 				if ( ! $it || $it['county'] !== $slug ) { continue; }
 				$bucket = 'measure' === $it['type'] ? 'measure' : 'race';
-				$out[ $bucket ][ $it['keyNorm'] ][] = array( 'url' => $url, 'title' => $row['title'], 'date' => $row['date'] );
+				$out[ $bucket ][ $it['keyNorm'] ][] = array( 'url' => $url, 'title' => html_entity_decode( $row['title'], ENT_QUOTES, 'UTF-8' ), 'date' => $row['date'] );
 			}
 		}
 		foreach ( $out as &$bucket ) {

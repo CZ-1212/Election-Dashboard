@@ -19,6 +19,9 @@ class ED_Automation {
 		if ( ! wp_next_scheduled( 'ed_daily_scan' ) ) { wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'ed_daily_scan' ); }
 	}
 
+	public static function min_date() { $d = get_option( 'ed_min_date', '2026-08-01' ); return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d ) ? $d : ''; }
+	public static function too_early( $date ) { return self::min_date() && $date && strcmp( $date, self::min_date() ) < 0; }
+
 	public static function has_tag( $post_id ) { return has_term( self::tag_slug(), 'post_tag', $post_id ); }
 
 	private static $pending = array();
@@ -52,7 +55,7 @@ class ED_Automation {
 		// counties named in categories or tags are reliable hints
 		$counties = ED_Matcher::detect_counties( array( 'title' => implode( ' . ', array_merge( (array) $tags, (array) $cats ) ), 'text' => '', 'url' => '' ) );
 		return array(
-			'title'    => get_the_title( $post_id ),
+			'title'    => html_entity_decode( get_the_title( $post_id ), ENT_QUOTES, 'UTF-8' ),
 			'text'     => $post->post_excerpt . "\n" . $content,
 			'url'      => get_permalink( $post_id ),
 			'tags'     => array_merge( (array) $tags, (array) $cats ),
@@ -70,6 +73,11 @@ class ED_Automation {
 		$index = ED_Stories::index();
 		$matches = ED_Matcher::match( $story, $index );
 
+		// Stories older than the cut-off date are probably about the June primary (same letters, different measures): never certain.
+		if ( $matches && self::too_early( $story['date'] ) ) {
+			foreach ( $matches as &$m ) { if ( 'exact' === $m['confidence'] ) { $m['confidence'] = 'likely'; $m['reason'] = 'published before ' . self::min_date() . ', may be about an earlier election; ' . $m['reason']; } }
+			unset( $m );
+		}
 		$all_exact = (bool) $matches;
 		foreach ( $matches as $m ) { if ( 'exact' !== $m['confidence'] ) { $all_exact = false; } }
 
@@ -103,6 +111,13 @@ class ED_Automation {
 			$url = get_permalink( $pid );
 			if ( ! isset( $all[ $url ] ) ) { $todo[] = (int) $pid; }
 		}
+		$changed = false;
+		foreach ( $all as $url => $row ) {
+			if ( 'auto' === $row['source'] && 'approved' === $row['status'] && self::too_early( $row['date'] ) ) {
+				$all[ $url ]['status'] = 'pending'; $all[ $url ]['note'] = 'published before ' . self::min_date() . ', may be about an earlier election'; $changed = true;
+			}
+		}
+		if ( $changed ) { ED_Stories::save( $all ); }
 		update_option( 'ed_last_scan', current_time( 'mysql' ) . ' · ' . count( $q->posts ) . ' tagged stories, ' . count( $todo ) . ' new', false );
 		update_option( 'ed_scan_queue', array_values( array_unique( array_merge( (array) get_option( 'ed_scan_queue', array() ), $todo ) ) ), false );
 		self::run_queue( 15 );
