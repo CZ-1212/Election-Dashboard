@@ -1,8 +1,8 @@
 <?php
 /**
  * Automatic story matching.
- *  - When a post is published (or updated) with the election tag, it is queued for matching.
- *  - A daily scan catches stories tagged later and, on first run, the whole tag archive.
+ *  - When a post is published (or updated) with the election tag, it is matched at the end of that request.
+ *  - A scan (button in the admin, plus daily) catches stories tagged earlier; the admin page drains the queue, so nothing depends on WP-Cron.
  *  - The plain matcher runs first; the Claude step runs only when a key is set and the matcher is unsure.
  */
 if ( ! defined( 'ABSPATH' ) ) { exit; }
@@ -15,20 +15,30 @@ class ED_Automation {
 		add_action( 'save_post_post', array( __CLASS__, 'on_save' ), 20, 3 );
 		add_action( 'ed_match_story', array( __CLASS__, 'match_post' ), 10, 1 );
 		add_action( 'ed_daily_scan', array( __CLASS__, 'scan' ) );
-		add_action( 'ed_scan_batch', array( __CLASS__, 'scan_batch' ), 10, 2 );
+		add_action( 'ed_scan_batch', array( __CLASS__, 'scan_batch' ) );
 		if ( ! wp_next_scheduled( 'ed_daily_scan' ) ) { wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'ed_daily_scan' ); }
 	}
 
 	public static function has_tag( $post_id ) { return has_term( self::tag_slug(), 'post_tag', $post_id ); }
 
+	private static $pending = array();
+
 	public static function on_save( $post_id, $post, $update ) {
 		if ( wp_is_post_revision( $post_id ) || wp_is_post_autosave( $post_id ) || 'publish' !== $post->post_status ) { return; }
-		if ( ! self::has_tag( $post_id ) ) { return; }
-		$url = get_permalink( $post_id );
-		$all = ED_Stories::all();
-		if ( isset( $all[ $url ] ) && in_array( $all[ $url ]['source'], array( 'manual' ), true ) ) { return; } // an editor decided; leave it
-		if ( ! wp_next_scheduled( 'ed_match_story', array( $post_id ) ) ) {
-			wp_schedule_single_event( time() + 5, 'ed_match_story', array( $post_id ) );
+		// The block editor assigns tags *after* save_post fires, so decide at the end of the request.
+		self::$pending[ $post_id ] = true;
+		if ( ! has_action( 'shutdown', array( __CLASS__, 'flush_pending' ) ) ) { add_action( 'shutdown', array( __CLASS__, 'flush_pending' ) ); }
+	}
+
+	public static function flush_pending() {
+		$ids = array_keys( self::$pending );
+		self::$pending = array();
+		foreach ( $ids as $post_id ) {
+			if ( ! self::has_tag( $post_id ) ) { continue; }
+			$all = ED_Stories::all();
+			$url = get_permalink( $post_id );
+			if ( isset( $all[ $url ] ) && 'manual' === $all[ $url ]['source'] ) { continue; } // an editor decided; leave it
+			self::match_post( $post_id );
 		}
 	}
 
@@ -84,22 +94,38 @@ class ED_Automation {
 		return $row;
 	}
 
-	/** Daily: queue tagged posts that have never been matched (first run covers the whole tag archive). */
+	/** Find tagged posts that have never been matched (first run covers the whole tag archive), then start processing them. */
 	public static function scan() {
 		$all = ED_Stories::all();
-		$q = new WP_Query( array( 'post_type' => 'post', 'post_status' => 'publish', 'tag' => self::tag_slug(), 'posts_per_page' => 500, 'fields' => 'ids', 'no_found_rows' => true ) );
+		$q = new WP_Query( array( 'post_type' => 'post', 'post_status' => 'publish', 'tag' => self::tag_slug(), 'posts_per_page' => 1000, 'fields' => 'ids', 'no_found_rows' => true ) );
 		$todo = array();
 		foreach ( $q->posts as $pid ) {
 			$url = get_permalink( $pid );
-			if ( ! isset( $all[ $url ] ) ) { $todo[] = $pid; }
+			if ( ! isset( $all[ $url ] ) ) { $todo[] = (int) $pid; }
 		}
-		update_option( 'ed_last_scan', current_time( 'mysql' ) . ' · ' . count( $q->posts ) . ' tagged stories, ' . count( $todo ) . ' new' );
-		foreach ( array_chunk( $todo, 15 ) as $i => $chunk ) {
-			wp_schedule_single_event( time() + 10 + 60 * $i, 'ed_scan_batch', array( $chunk, $i ) );
-		}
+		update_option( 'ed_last_scan', current_time( 'mysql' ) . ' · ' . count( $q->posts ) . ' tagged stories, ' . count( $todo ) . ' new', false );
+		update_option( 'ed_scan_queue', array_values( array_unique( array_merge( (array) get_option( 'ed_scan_queue', array() ), $todo ) ) ), false );
+		self::run_queue( 15 );
 		return count( $todo );
 	}
 
-	public static function scan_batch( $ids, $i ) { foreach ( (array) $ids as $pid ) { self::match_post( $pid ); } }
+	/** Match queued posts until the time budget is spent. Returns how many are still waiting. */
+	public static function run_queue( $seconds = 15 ) {
+		$queue = array_values( (array) get_option( 'ed_scan_queue', array() ) );
+		if ( ! $queue ) { return 0; }
+		if ( function_exists( 'set_time_limit' ) ) { @set_time_limit( $seconds + 30 ); }
+		$stop = microtime( true ) + $seconds;
+		while ( $queue && microtime( true ) < $stop ) {
+			$pid = array_shift( $queue );
+			update_option( 'ed_scan_queue', $queue, false );
+			self::match_post( $pid );
+		}
+		if ( $queue && ! wp_next_scheduled( 'ed_scan_batch' ) ) { wp_schedule_single_event( time() + 60, 'ed_scan_batch' ); } // fallback when nobody is on the admin page
+		return count( $queue );
+	}
+
+	public static function queue_size() { return count( (array) get_option( 'ed_scan_queue', array() ) ); }
+
+	public static function scan_batch() { self::run_queue( 20 ); }
 }
 ED_Automation::init();

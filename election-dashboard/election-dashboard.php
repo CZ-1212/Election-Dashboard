@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Election Dashboard
  * Description: Interactive county map — hover a county to preview its emblem and ballot, click to pin it. Use the [election_dashboard] shortcode.
- * Version:     1.4.0
+ * Version:     1.4.1
  * Author:      Cal Metrics Consulting
  * License:     GPL-2.0-or-later
  * Text Domain: election-dashboard
@@ -10,7 +10,7 @@
 
 if ( ! defined( 'ABSPATH' ) ) { exit; }
 
-define( 'ED_VERSION', '1.4.0' );
+define( 'ED_VERSION', '1.4.1' );
 define( 'ED_DIR', plugin_dir_path( __FILE__ ) );
 define( 'ED_URL', plugin_dir_url( __FILE__ ) );
 
@@ -19,7 +19,8 @@ require_once ED_DIR . 'includes/class-ed-ai.php';
 require_once ED_DIR . 'includes/class-ed-stories.php';
 require_once ED_DIR . 'includes/automation.php';
 if ( is_admin() ) { require_once ED_DIR . 'includes/admin.php'; }
-register_deactivation_hook( __FILE__, function () { wp_clear_scheduled_hook( 'ed_daily_scan' ); } );
+register_activation_hook( __FILE__, function () { if ( class_exists( 'ED_Automation' ) ) { ED_Automation::scan(); } } );
+register_deactivation_hook( __FILE__, function () { wp_clear_scheduled_hook( 'ed_daily_scan' ); wp_clear_scheduled_hook( 'ed_scan_batch' ); } );
 
 /**
  * Returns the county configuration (see includes/counties.php).

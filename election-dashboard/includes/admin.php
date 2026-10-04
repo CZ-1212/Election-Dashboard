@@ -12,6 +12,12 @@ class ED_Admin {
 		add_action( 'admin_post_ed_review', array( __CLASS__, 'handle_review' ) );
 		add_action( 'admin_post_ed_scan', array( __CLASS__, 'handle_scan' ) );
 		add_action( 'admin_post_ed_manual', array( __CLASS__, 'handle_manual' ) );
+		add_action( 'load-toplevel_page_election-dashboard', array( __CLASS__, 'drain_queue' ) );
+	}
+
+	/** Each view of the page processes more of the queue; the page reloads itself until it is empty. */
+	public static function drain_queue() {
+		if ( ED_Automation::queue_size() && current_user_can( 'edit_posts' ) ) { ED_Automation::run_queue( 12 ); }
 	}
 
 	public static function menu() {
@@ -29,7 +35,7 @@ class ED_Admin {
 		if ( ! current_user_can( 'edit_posts' ) ) { wp_die( 'No access' ); }
 		check_admin_referer( 'ed_scan' );
 		$n = ED_Automation::scan();
-		wp_safe_redirect( admin_url( 'admin.php?page=election-dashboard&scanned=' . $n ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=election-dashboard&status=all&scanned=' . $n ) );
 		exit;
 	}
 
@@ -73,10 +79,15 @@ class ED_Admin {
 		$rows = array_filter( $all, function ( $r ) use ( $filter ) { return 'all' === $filter || $r['status'] === $filter; } );
 		uasort( $rows, function ( $a, $b ) { return strcmp( $b['date'], $a['date'] ); } );
 		$idx = ED_Stories::index();
+		$left = ED_Automation::queue_size();
 		?>
 		<div class="wrap">
 			<h1>Election Dashboard · Story matches</h1>
-			<?php if ( isset( $_GET['scanned'] ) ) : ?><div class="notice notice-success"><p><?php echo intval( $_GET['scanned'] ); ?> new tagged stories queued for matching. They are processed in the background over the next few minutes.</p></div><?php endif; ?>
+			<?php if ( $left ) : ?>
+				<meta http-equiv="refresh" content="2;url=<?php echo esc_attr( admin_url( 'admin.php?page=election-dashboard&status=' . $filter ) ); ?>">
+				<div class="notice notice-info"><p><strong><?php echo intval( $left ); ?> stories still to process.</strong> Keep this page open; it reloads itself until the queue is empty.</p></div>
+			<?php endif; ?>
+			<?php if ( isset( $_GET['scanned'] ) ) : ?><div class="notice notice-success"><p>Scan finished: <?php echo intval( $_GET['scanned'] ); ?> stories with the tag had not been matched before<?php echo $left ? ', ' . intval( $left ) . ' still processing' : ', all processed'; ?>.</p></div><?php endif; ?>
 			<?php if ( isset( $_GET['added'] ) ) : ?><div class="notice notice-success"><p>Story link added.</p></div><?php endif; ?>
 			<?php if ( isset( $_GET['settings-updated'] ) ) : ?><div class="notice notice-success"><p>Settings saved.</p></div><?php endif; ?>
 
@@ -87,6 +98,7 @@ class ED_Admin {
 				<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;margin-left:12px"><?php wp_nonce_field( 'ed_scan' ); ?><input type="hidden" name="action" value="ed_scan"><button class="button">Scan the “<?php echo esc_html( ED_Automation::tag_slug() ); ?>” tag now</button></form>
 				<span style="color:#666;margin-left:8px">Last scan: <?php echo esc_html( get_option( 'ed_last_scan', 'never' ) ); ?> · AI step: <?php echo ED_AI::enabled() ? 'on' : 'off (no API key)'; ?></span>
 			</p>
+			<p style="color:#666">Ballot index: <?php echo intval( count( $idx['items'] ) ); ?> items in <?php echo intval( count( $idx['counties'] ) ); ?> counties · Tag “<?php echo esc_html( ED_Automation::tag_slug() ); ?>”: <?php $t = get_term_by( 'slug', ED_Automation::tag_slug(), 'post_tag' ); echo $t ? intval( $t->count ) . ' posts' : '<strong style="color:#b32d2e">not found, check the tag slug in Settings below</strong>'; ?> · Approved links: <?php echo intval( $counts['approved'] ); ?><?php if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) : ?> · WP-Cron is off on this site (fine: matching runs on publish and from this page)<?php endif; ?></p>
 
 			<?php if ( ! $rows ) : ?><p><em>Nothing here.</em></p><?php endif; ?>
 			<?php foreach ( $rows as $url => $r ) : ?>
@@ -132,7 +144,7 @@ class ED_Admin {
 				<?php settings_fields( 'ed_settings' ); ?>
 				<table class="form-table">
 					<tr><th>Election tag</th><td><input type="text" name="ed_election_tag" value="<?php echo esc_attr( get_option( 'ed_election_tag', 'election-2026' ) ); ?>" class="regular-text"><p class="description">Tag slug that marks election stories.</p></td></tr>
-					<tr><th>Auto-approve certain matches</th><td><label><input type="checkbox" name="ed_auto_approve_exact" value="1" <?php checked( 1, get_option( 'ed_auto_approve_exact', 1 ) ); ?>> When every match is certain, publish the links without review</label></td></tr>
+					<tr><th>Auto-approve certain matches</th><td><input type="hidden" name="ed_auto_approve_exact" value="0"><label><input type="checkbox" name="ed_auto_approve_exact" value="1" <?php checked( 1, get_option( 'ed_auto_approve_exact', 1 ) ); ?>> When every match is certain, publish the links without review</label></td></tr>
 					<tr><th>Claude API key</th><td><input type="password" name="ed_anthropic_api_key" value="<?php echo esc_attr( get_option( 'ed_anthropic_api_key', '' ) ); ?>" class="regular-text" autocomplete="off" <?php disabled( defined( 'ED_ANTHROPIC_API_KEY' ) ); ?>><p class="description">Optional. With a key, uncertain stories are read by Claude before they reach the queue. Leave empty to run without AI. You can also define <code>ED_ANTHROPIC_API_KEY</code> in wp-config.php.</p></td></tr>
 					<tr><th>Model</th><td><input type="text" name="ed_ai_model" value="<?php echo esc_attr( get_option( 'ed_ai_model', 'claude-opus-5-5' ) ); ?>" class="regular-text"><p class="description">Default <code>claude-opus-5-5</code>. <code>claude-sonnet-5-5</code> costs about half.</p></td></tr>
 				</table>
